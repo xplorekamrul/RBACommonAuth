@@ -1,4 +1,3 @@
-// /components/auth/ForgotVerifyForm.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -21,7 +20,7 @@ export default function ForgotVerifyForm({ defaultEmail = "" }: { defaultEmail?:
     setErr(null);
     const res = await executeAsync({ email, code });
     if (res?.data?.ok) {
-      // go to reset page (cookie is set by server action)
+      // go to reset page 
       window.location.href = "/forgot/reset";
     } else {
       setErr(res?.data?.message ?? res?.serverError ?? "Verification failed.");

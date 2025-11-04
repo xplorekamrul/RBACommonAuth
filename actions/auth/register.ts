@@ -1,4 +1,3 @@
-// /actions/auth/register.ts
 "use server";
 
 import { actionClient } from "@/lib/safe-action/clients";

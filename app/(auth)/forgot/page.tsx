@@ -1,4 +1,3 @@
-// /app/(auth)/forgot/page.tsx
 import type { Metadata } from "next";
 import AuthCard from "@/components/auth/AuthCard";
 import ForgotRequestForm from "@/components/auth/ForgotRequestForm";

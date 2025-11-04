@@ -1,4 +1,3 @@
-// /actions/auth/forgot/reset-password.ts
 "use server";
 
 import { actionClient } from "@/lib/safe-action/clients";

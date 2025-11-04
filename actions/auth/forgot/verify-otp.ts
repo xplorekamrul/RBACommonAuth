@@ -1,4 +1,3 @@
-// /actions/auth/forgot/verify-otp.ts
 "use server";
 
 import { actionClient } from "@/lib/safe-action/clients";

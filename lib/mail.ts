@@ -1,4 +1,3 @@
-// /lib/mail.ts
 import nodemailer from "nodemailer";
 
 const {

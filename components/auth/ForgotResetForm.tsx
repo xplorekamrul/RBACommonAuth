@@ -1,4 +1,3 @@
-// /components/auth/ForgotResetForm.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -14,16 +13,16 @@ export default function ForgotResetForm() {
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  // local (client-side) field errors
+  // local  field errors
   const [localErrors, setLocalErrors] = useState<{ password?: string; confirm?: string }>({});
 
-  // server-side zod field errors (next-safe-action)
+  // server-side errors (next-safe-action)
   const zodFieldErrors = useMemo(() => {
     const errs = (result?.validationErrors ?? {}) as Record<string, string[] | undefined>;
     return { password: errs?.password?.[0], confirm: errs?.confirm?.[0] };
   }, [result]);
 
-  // merge local error (preferred) over zod error for display
+  // merge local error  over zod error for display
   const fieldErrors = {
     password: localErrors.password ?? zodFieldErrors.password,
     confirm: localErrors.confirm ?? zodFieldErrors.confirm,

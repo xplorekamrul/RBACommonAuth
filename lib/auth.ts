@@ -32,7 +32,6 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name ?? null,
           email: user.email,
-          // keep these literal unions to avoid any
           role: user.role as "ADMIN" | "SUPER_ADMIN" | "DEVELOPER",
           status: user.status as "ACTIVE" | "INACTIVE" | "SUSPENDED",
         } as User;
@@ -62,7 +61,6 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        // these fields are declared in our type augmentation below
         session.user.id = token.id as string;
         session.user.role = token.role as "ADMIN" | "SUPER_ADMIN" | "DEVELOPER";
         session.user.status = token.status as "ACTIVE" | "INACTIVE" | "SUSPENDED";
@@ -72,7 +70,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// Helper you can call in Server Components / Server Actions
 export function auth() {
   return getServerSession(authOptions);
 }
