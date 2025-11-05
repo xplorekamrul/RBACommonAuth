@@ -9,6 +9,16 @@ import { Eye, EyeOff } from "lucide-react";
 import { login } from "@/actions/auth/login";
 import type { LoginValues } from "@/lib/validations/auth";
 
+type Role = "DEVELOPER" | "SUPER_ADMIN" | "ADMIN" | "USER";
+
+// map roles to landing routes
+const ROLE_HOME: Record<Role, string> = {
+  SUPER_ADMIN: "/super-admin",
+  DEVELOPER: "/developer",
+  ADMIN: "/admin",
+  USER: "/", // fallback for regular users; tweak if you have a /user home
+};
+
 export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<LoginValues>({ email: "", password: "" });
@@ -29,19 +39,24 @@ export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string 
     e.preventDefault();
     setFormError(null);
 
-    //  Safe server-side validation + creds check
+    // 1) Server-side validation + password check first
     const precheck = await executeAsync(form);
     if (!precheck?.data?.ok) {
       setFormError(precheck?.data?.message ?? precheck?.serverError ?? "Unable to sign in.");
       return;
     }
 
-    // Create session via NextAuth credentials provider
+    // 2) Compute target route by role
+    const role = (precheck.data.user.role || "USER") as Role;
+    const target = ROLE_HOME[role] ?? callbackUrl ?? "/";
+
+    // 3) Create session via NextAuth (no auto-redirect)
     const res = await signIn("credentials", {
       redirect: false,
       email: form.email,
       password: form.password,
-      callbackUrl,
+      // pass target along so NextAuth knows intended URL (useful if you later enable redirect)
+      callbackUrl: target,
     });
 
     if (res?.error) {
@@ -49,8 +64,8 @@ export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string 
       return;
     }
 
-    // success
-    router.push(callbackUrl);
+    // 4) Client-side redirect to role home
+    router.push(target);
   };
 
   return (
@@ -81,10 +96,7 @@ export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string 
       </div>
 
       <div className="space-y-2">
-
-
-        {/* Forgot password link */}
-        <div className=" flex justify-between ">
+        <div className="flex justify-between">
           <label htmlFor="password" className="text-sm font-medium text-foreground">
             Password
           </label>
@@ -97,6 +109,7 @@ export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string 
             </Link>
           </div>
         </div>
+
         <div className="relative">
           <input
             id="password"
@@ -128,8 +141,6 @@ export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string 
             {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
-
-
 
         {fieldErrors.password ? (
           <p id="password-error" className="text-xs text-destructive">{fieldErrors.password}</p>

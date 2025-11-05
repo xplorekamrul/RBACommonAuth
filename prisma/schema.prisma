@@ -155,13 +155,13 @@ model Designation {
 }
 
 
-/// ===================== ONE-TO-ONE DETAIL TABLES =====================
+/// ===================== ONE-TO-ONE  TABLES =====================
 
 model Identity {
   id          String  @id @default(cuid())
   employeeId  String  @unique @map("employee_id")
 
-  nid         String? // National ID number
+  nid         String? 
   nidId       String? @map("nid_id")
   passport    String?
   passportId  String? @map("passport_id")
@@ -238,7 +238,7 @@ model Family {
   updatedAt     DateTime @updatedAt      @map("updated_at")
 }
 
-/// ===================== ONE-TO-MANY DETAIL TABLES =====================
+/// ===================== ONE-TO-MANY  TABLES =====================
 
 model Education {
   id          String   @id @default(cuid())
