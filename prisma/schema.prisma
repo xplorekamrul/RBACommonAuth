@@ -25,6 +25,35 @@ enum Role {
 }
 
 
+
+/* ===== auth Models ===== */
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String        @unique
+  emailVerified DateTime?     @map("email_verified")
+  password      String
+  role          Role          @default(ADMIN)
+  status        AccountStatus @default(ACTIVE)
+  suspendedAt   DateTime?     @map("suspended_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+}
+
+model PasswordResetOtp {
+  id         String   @id @default(cuid())
+  email      String   @db.VarChar(255)
+  codeHash   String   @map("code_hash")
+  expiresAt  DateTime @map("expires_at")
+  attempts   Int      @default(0)
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([email, createdAt])
+}
+
+
 /// ===================== HR ENUMS =====================
 enum EmploymentStatus {
   ACTIVE
@@ -71,35 +100,6 @@ enum MaritalStatus {
   WIDOWED
 }
 
-
-/**
- * ===== Models =====
- */
-model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String        @unique
-  emailVerified DateTime?     @map("email_verified")
-  password      String
-  role          Role          @default(ADMIN)
-  status        AccountStatus @default(ACTIVE)
-  suspendedAt   DateTime?     @map("suspended_at")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-
-}
-
-model PasswordResetOtp {
-  id         String   @id @default(cuid())
-  email      String   @db.VarChar(255)
-  codeHash   String   @map("code_hash")
-  expiresAt  DateTime @map("expires_at")
-  attempts   Int      @default(0)
-  consumedAt DateTime? @map("consumed_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  @@index([email, createdAt])
-}
 
 model Employee {
   id             String            @id @default(cuid())
@@ -256,13 +256,13 @@ model Education {
 
 model Document {
   id          String         @id @default(cuid())
-  employeeId  String         @map("employee_id")
 
   name        String
   src         String?
   data        Json?
   format      DocumentFormat
 
+  employeeId  String         @map("employee_id") 
   employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime @default(now()) @map("created_at")
@@ -271,13 +271,13 @@ model Document {
 
 model JobHistory {
   id           String   @id @default(cuid())
-  employeeId   String   @map("employee_id")
 
   companyName  String   @map("company_name")
   designation  String
   startDate    DateTime @map("start_date")
   endDate      DateTime? @map("end_date")
 
+  employeeId   String   @map("employee_id")
   employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   createdAt    DateTime @default(now()) @map("created_at")
