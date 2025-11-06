@@ -41,10 +41,12 @@ const roleNav: Record<Role, Item[]> = {
   SUPER_ADMIN: [
     { label: "Super Dashboard", href: "/super-admin/overview", icon: Gauge },
     { label: "Users", href: "/super-admin/users", icon: Users },
+    { label: "Employees", href: "/admin/employees", icon: Users },
   ],
   ADMIN: [
     { label: "Admin Panel", href: "/admin", icon: LayoutDashboard },
-    { label: "Settings", href: "/settings", icon: Settings },
+    { label: "Employees", href: "/admin/employees", icon: Users },
+    // { label: "Settings", href: "/settings", icon: Settings },
   ],
 };
 
