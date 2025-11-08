@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, type ReactNode } from "react"; 
+import { useState, useMemo, type ReactNode } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { updateUserStatus } from "@/actions/users/update-user-status";
 import { deleteUser } from "@/actions/users/delete-user";
-import { Pencil, KeyRound, Trash2, MoreHorizontal, PlayCircle, PauseCircle, UserX } from "lucide-react";
+import { Pencil, KeyRound, Trash2, MoreHorizontal, PlayCircle, PauseCircle, UserX, Lock } from "lucide-react";
 import EditInfoDialog from "./dialogs/EditInfoDialog";
 import EditPasswordDialog from "./dialogs/EditPasswordDialog";
 
@@ -20,9 +20,12 @@ type Props = {
     status: Status;
   };
   onChanged: () => void;
+  disabled?: boolean;
 };
 
-export default function UserRowActions({ user, onChanged }: Props) {
+export default function UserRowActions({ user, onChanged, disabled: disabledProp }: Props) {
+  const disabled = disabledProp ?? user.role === "DEVELOPER";
+
   const [openMenu, setOpenMenu] = useState(false);
   const [openInfo, setOpenInfo] = useState(false);
   const [openPass, setOpenPass] = useState(false);
@@ -31,11 +34,13 @@ export default function UserRowActions({ user, onChanged }: Props) {
   const { executeAsync: doDelete } = useAction(deleteUser);
 
   async function setStatus(status: Status) {
+    if (disabled) return;
     const res = await doStatus({ id: user.id, status });
     if (res?.data?.ok) onChanged();
   }
 
   async function remove() {
+    if (disabled) return;
     if (!confirm("Delete this user? This cannot be undone.")) return;
     const res = await doDelete({ id: user.id });
     if (res?.data?.ok) onChanged();
@@ -50,14 +55,19 @@ export default function UserRowActions({ user, onChanged }: Props) {
     return all.filter(o => o.key !== user.status);
   }, [user.status]);
 
+
+
   return (
     <div className="relative">
       <button
-        aria-label="Actions"
-        onClick={() => setOpenMenu(v => !v)}
-        className="h-8 w-8 grid place-items-center rounded-md border border-border hover:bg-light"
+        aria-label={disabled ? "Actions disabled" : "Actions"}
+        onClick={() => { if (!disabled) setOpenMenu(v => !v); }}
+        className={`h-8 w-8 grid place-items-center rounded-md border border-border
+          ${disabled ? "opacity-50 pointer-events-none" : "hover:bg-light"}`}
+        disabled={disabled}
+        title={disabled ? "Actions are disabled for Developer users" : "Actions"}
       >
-        <MoreHorizontal className="h-4 w-4 text-center" />
+        {disabled ? <Lock className="h-4 w-4" /> : <MoreHorizontal className="h-4 w-4 text-center" />}
       </button>
 
       {openMenu ? (

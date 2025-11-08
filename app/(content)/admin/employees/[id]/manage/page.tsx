@@ -9,7 +9,7 @@ type PageProps = {
 };
 
 export default async function Page(props: PageProps) {
-  const { id } = await props.params;           // ✅ unwrap params
+  const { id } = await props.params;        
 
   const res = await getEmployeeDetail({ id }); 
 

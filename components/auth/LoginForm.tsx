@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useAction } from "next-safe-action/hooks";
-import { signIn } from "next-auth/react";
-import { Eye, EyeOff } from "lucide-react";
 import { login } from "@/actions/auth/login";
 import type { LoginValues } from "@/lib/validations/auth";
+import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useAction } from "next-safe-action/hooks";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 type Role = "DEVELOPER" | "SUPER_ADMIN" | "ADMIN" | "USER";
 
@@ -154,7 +154,7 @@ export default function LoginForm({ callbackUrl = "/" }: { callbackUrl?: string 
         disabled={status === "executing"}
         className="
           w-full inline-flex items-center justify-center gap-2
-          rounded-lg bg-pcolor text-white py-2.5
+          rounded-lg bg-primary text-white py-2.5
           hover:bg-scolor transition-colors
           disabled:opacity-60
           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sidebar-ring

@@ -37,7 +37,6 @@ export default function EmployeeRowActions({
   onChanged: () => void;
 }) {
   const [openMenu, setOpenMenu] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
 
   const { executeAsync: doStatus } = useAction(updateEmployeeStatus);
   const { executeAsync: doDelete } = useAction(deleteEmployee);
@@ -110,15 +109,14 @@ export default function EmployeeRowActions({
           ))}
 
           {/* Edit basic info */}
-          <button
+          {/* <button
             className="w-full flex items-center gap-2 px-3 py-2 hover:bg-light text-emerald-700"
             onClick={() => {
               setOpenMenu(false);
-              setOpenEdit(true);
             }}
           >
             <Pencil className="h-4 w-4" /> Edit
-          </button>
+          </button> */}
 
           {/* Divider */}
           <div className="h-px bg-border" />
@@ -136,20 +134,7 @@ export default function EmployeeRowActions({
         </div>
       ) : null}
 
-      <EditEmployeeDialog
-        open={openEdit}
-        onOpenChange={setOpenEdit}
-        onSaved={onChanged}
-        employee={{
-          id: employee.id,
-          name: employee.name,
-          empId: employee.empId,
-          joiningDate: employee.joiningDate,
-          contractType: employee.contractType,
-          department: employee.department ?? null,
-          designation: employee.designation ?? null,
-        }}
-      />
+     
     </div>
   );
 }

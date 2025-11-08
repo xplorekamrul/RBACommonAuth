@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useAction } from "next-safe-action/hooks";
-import { createDocument, updateDocument, deleteDocument } from "@/actions/employees/one-to-many";
+import { createDocument, deleteDocument, updateDocument } from "@/actions/employees/one-to-many";
 import { DOCUMENT_FORMAT, type DocumentFormat } from "@/lib/enums/enums";
-import { hasOkData } from "@/lib/safe-action/ok";
 import { formatEnumLabel } from "@/lib/format";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { hasOkData } from "@/lib/safe-action/ok";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useState } from "react";
 
 type Doc = { id: string; name: string; src: string | null; format: DocumentFormat };
 
@@ -22,7 +22,7 @@ export default function DocumentsSection({
   const [newItem, setNewItem] = useState<{ name: string; src: string; format: DocumentFormat }>({
     name: "",
     src: "",
-    format: "IMAGE",
+    format: "jpg",
   });
 
   const { executeAsync: doCreate, status: sc } = useAction(createDocument);
@@ -42,7 +42,7 @@ export default function DocumentsSection({
     if (hasOkData<{ id: string }>(res)) {
       const id = res.data.id;
       setItems((arr) => [{ id, ...newItem, src: newItem.src || null }, ...arr]);
-      setNewItem({ name: "", src: "", format: "IMAGE" });
+      setNewItem({ name: "", src: "", format: "jpg" });
       setAdding(false);
     }
   }
@@ -107,7 +107,7 @@ export default function DocumentsSection({
             <button type="button" className="rounded-md border px-3 py-2" onClick={() => setAdding(false)}>
               Cancel
             </button>
-            <button className="rounded-md bg-pcolor text-white px-3 py-2" disabled={sc === "executing"}>
+            <button className="rounded-md bg-primary text-white px-3 py-2" disabled={sc === "executing"}>
               Save
             </button>
           </div>
@@ -168,7 +168,7 @@ function Row({
               Cancel
             </button>
             <button
-              className="rounded-md bg-pcolor text-white px-3 py-2"
+              className="rounded-md bg-primary text-white px-3 py-2"
               onClick={() => (onSave(item.id, form), setEditing(false))}
             >
               Save

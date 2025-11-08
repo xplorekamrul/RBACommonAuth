@@ -1,11 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { superAdminActionClient } from "@/lib/safe-action/clients";
+import { adminActionClient } from "@/lib/safe-action/clients";
 import { employeeStatusSchema } from "@/lib/validations/employees";
 import { Prisma, $Enums } from "@/generated/prisma/client";
 
-export const updateEmployeeStatus = superAdminActionClient
+export const updateEmployeeStatus = adminActionClient
   .schema(employeeStatusSchema)
   .action(async ({ parsedInput }) => {
     const { id, status } = parsedInput;

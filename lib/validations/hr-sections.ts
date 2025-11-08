@@ -75,6 +75,11 @@ export const familyUpsertSchema = z.object({
   spouseName: z.string().trim().optional().nullable(),
   spouseOccupation: z.string().trim().optional().nullable(),
   noChildren: z.number().int().min(0).optional().nullable(),
+  anniversary: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+    .optional()
+    .nullable(), // remove if not in DB
 });
 
 /** One-to-many: Education */

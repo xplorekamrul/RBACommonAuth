@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { updateEmployee } from "@/actions/employees/update-employee";
 import { CONTRACT_TYPE, type ContractType } from "@/lib/enums/enums";
+import { useAction } from "next-safe-action/hooks";
+import { useEffect, useMemo, useState } from "react";
 
 type Opt = { id: string; name: string };
 
@@ -93,7 +93,7 @@ export default function EditEmployeeDialog({
             <label className="text-sm">Joining Date</label>
             <input type="datetime-local"
               className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2"
-              value={form.joiningDate ? form.joiningDate.toString().slice(0,16) : ""}
+              value={form.joiningDate ? form.joiningDate.toString().slice(0, 16) : ""}
               onChange={(e) => setForm(s => ({ ...s, joiningDate: e.target.value }))} />
           </div>
           <div>
@@ -137,7 +137,7 @@ export default function EditEmployeeDialog({
 
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" onClick={() => onOpenChange(false)} className="px-3 py-2 rounded-md border">Cancel</button>
-          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-pcolor text-white">Save</button>
+          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-primary text-white">Save</button>
         </div>
       </form>
     </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { upsertContact } from "@/actions/employees/one-to-one";
+import { useAction } from "next-safe-action/hooks";
+import { useMemo, useState } from "react";
 
 export default function ContactSection({ employeeId, initial }: { employeeId: string; initial?: any | null }) {
   const [editing, setEditing] = useState(!initial);
@@ -43,40 +43,40 @@ export default function ContactSection({ employeeId, initial }: { employeeId: st
       </div>
 
       {editing ? (
-        <form onSubmit={save} className="grid sm:grid-cols-2 gap-3">
-          <Input label="Mobile" value={form.mobile} onChange={(v)=>setForm(s=>({...s,mobile:v}))}/>
+        <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <Input label="Mobile" value={form.mobile} onChange={(v) => setForm(s => ({ ...s, mobile: v }))} />
           <div>
             <label className="text-sm">Email</label>
             <input className="mt-1 w-full rounded-md border px-3 py-2" value={form.email}
-              onChange={(e)=>setForm(s=>({...s,email:e.target.value}))} />
+              onChange={(e) => setForm(s => ({ ...s, email: e.target.value }))} />
             {fieldErrors.email && <p className="text-xs text-destructive">{fieldErrors.email}</p>}
           </div>
-          <Input label="Emergency Contact Name" value={form.emergencyContactName} onChange={(v)=>setForm(s=>({...s,emergencyContactName:v}))}/>
-          <Input label="Emergency Contact Number" value={form.emergencyContactNumber} onChange={(v)=>setForm(s=>({...s,emergencyContactNumber:v}))}/>
-          <Input label="Emergency Contact Relation" value={form.emergencyContactRelation} onChange={(v)=>setForm(s=>({...s,emergencyContactRelation:v}))}/>
-          <div className="sm:col-span-2 flex gap-2 justify-end">
+          <Input label="Emergency Contact Name" value={form.emergencyContactName} onChange={(v) => setForm(s => ({ ...s, emergencyContactName: v }))} />
+          <Input label="Emergency Contact Number" value={form.emergencyContactNumber} onChange={(v) => setForm(s => ({ ...s, emergencyContactNumber: v }))} />
+          <Input label="Emergency Contact Relation" value={form.emergencyContactRelation} onChange={(v) => setForm(s => ({ ...s, emergencyContactRelation: v }))} />
+          <div className="col-span-1 lg:col-span-3 flex gap-2 justify-end">
             <button type="button" onClick={() => setEditing(false)} className="rounded-md border px-3 py-2">Cancel</button>
-            <button disabled={status === "executing"} className="rounded-md bg-pcolor text-white px-3 py-2">Save</button>
+            <button disabled={status === "executing"} className="rounded-md bg-primary text-white px-3 py-2">Save</button>
           </div>
         </form>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-3 text-sm">
-          <Pair k="Mobile" v={form.mobile}/>
-          <Pair k="Email" v={form.email}/>
-          <Pair k="Emergency Name" v={form.emergencyContactName}/>
-          <Pair k="Emergency Number" v={form.emergencyContactNumber}/>
-          <Pair k="Emergency Relation" v={form.emergencyContactRelation}/>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 text-sm">
+          <Pair k="Mobile" v={form.mobile} />
+          <Pair k="Email" v={form.email} />
+          <Pair k="Emergency Name" v={form.emergencyContactName} />
+          <Pair k="Emergency Number" v={form.emergencyContactNumber} />
+          <Pair k="Emergency Relation" v={form.emergencyContactRelation} />
         </div>
       )}
     </section>
   );
 }
 
-function Input({ label, value, onChange }: { label: string; value: string; onChange:(v:string)=>void }) {
+function Input({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
       <label className="text-sm">{label}</label>
-      <input className="mt-1 w-full rounded-md border px-3 py-2" value={value} onChange={(e)=>onChange(e.target.value)} />
+      <input className="mt-1 w-full rounded-md border px-3 py-2" value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

@@ -10,7 +10,8 @@ export type Gender = typeof GENDER[number];
 export const BLOOD_GROUP = ["A_POS","A_NEG","B_POS","B_NEG","AB_POS","AB_NEG","O_POS","O_NEG"] as const;
 export type BloodGroup = typeof BLOOD_GROUP[number];
 
-export const DOCUMENT_FORMAT = ["IMAGE","PDF","DOC","OTHER"] as const;
+export const DOCUMENT_FORMAT = ["jpg","jpeg","png","gif","webp","pdf"] as const;
+
 export type DocumentFormat = typeof DOCUMENT_FORMAT[number];
 
 export const MARITAL_STATUS = ["SINGLE","MARRIED","DIVORCED","WIDOWED"] as const;

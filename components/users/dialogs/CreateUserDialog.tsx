@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
 import { createUser } from "@/actions/users/create-user";
 import { Role } from "@/generated/prisma/enums";
+import { Eye, EyeOff } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useMemo, useState } from "react";
 
 type Props = {
   open: boolean;
@@ -92,7 +92,7 @@ export default function CreateUserDialog({ open, onOpenChange, onCreated }: Prop
           <button type="button" onClick={() => onOpenChange(false)} className="px-3 py-2 rounded-md border">
             Cancel
           </button>
-          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-pcolor text-white">
+          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-primary text-white">
             Save
           </button>
         </div>

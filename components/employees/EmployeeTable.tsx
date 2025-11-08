@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { listEmployees } from "@/actions/employees/list-employees";
-import EmployeeRowActions from "./EmployeeRowActions";
-import CreateEmployeeDialog from "./dialogs/CreateEmployeeDialog";
-import { Filter, Plus, Search, Check } from "lucide-react";
 import { CONTRACT_TYPE, EMPLOYMENT_STATUS, type ContractType, type EmploymentStatus } from "@/lib/enums/enums";
+import { Check, Filter, Plus, Search } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import EmployeeRowActions from "./EmployeeRowActions";
 
 type Row = {
   id: string;
@@ -58,7 +58,6 @@ export default function EmployeeTable({
   const [contracts, setContracts] = useState<ContractType[]>([]);
   const [departmentId, setDepartmentId] = useState<string>("");
   const [designationId, setDesignationId] = useState<string>("");
-  const [openCreate, setOpenCreate] = useState(false);
 
   const { execute: run, result, status } = useAction(listEmployees);
   const total = (result?.data as any)?.total ?? 0;
@@ -78,7 +77,6 @@ export default function EmployeeTable({
 
   useEffect(() => {
     refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, statuses, contracts, departmentId, designationId]);
 
   function toggle<T>(arr: T[], v: T): T[] {
@@ -119,12 +117,12 @@ export default function EmployeeTable({
           </button>
         </div>
 
-        <button
-          onClick={() => setOpenCreate(true)}
-          className="inline-flex items-center gap-2 rounded-md bg-pcolor text-white px-3 py-2 hover:bg-scolor"
+        <Link
+          href="/admin/employees/new"
+          className="inline-flex items-center gap-2 rounded-md bg-primary text-white px-3 py-2 hover:bg-scolor"
         >
           <Plus className="h-4 w-4" /> Add Employee
-        </button>
+        </Link>
       </div>
 
       {/* Filters panel */}
@@ -142,11 +140,10 @@ export default function EmployeeTable({
                       setStatuses((prev) => toggle(prev, s));
                       setPage(1);
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${
-                      active
-                        ? "bg-pcolor text-white border-pcolor"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${active
+                        ? "bg-primary text-white border-primary"
                         : "border-border hover:bg-light"
-                    }`}
+                      }`}
                     title={STATUS_LABEL[s] ?? humanizeEnum(s)}
                   >
                     {active && <Check className="h-3.5 w-3.5" />}
@@ -169,11 +166,10 @@ export default function EmployeeTable({
                       setContracts((prev) => toggle(prev, c));
                       setPage(1);
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${
-                      active
-                        ? "bg-pcolor text-white border-pcolor"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition ${active
+                        ? "bg-primary text-white border-primary"
                         : "border-border hover:bg-light"
-                    }`}
+                      }`}
                     title={CONTRACT_LABEL[c] ?? humanizeEnum(c)}
                   >
                     {active && <Check className="h-3.5 w-3.5" />}
@@ -261,15 +257,14 @@ export default function EmployeeTable({
                   {/* Status: pretty label in colored chip */}
                   <td className="px-3 py-2">
                     <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs border ${
-                        e.status === "ACTIVE"
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs border ${e.status === "ACTIVE"
                           ? "border-emerald-600 text-emerald-700"
                           : e.status === "TERMINATED"
-                          ? "border-red-600 text-red-700"
-                          : e.status === "ON_LEAVE"
-                          ? "border-amber-600 text-amber-700"
-                          : "border-orange-600 text-orange-700"
-                      }`}
+                            ? "border-red-600 text-red-700"
+                            : e.status === "ON_LEAVE"
+                              ? "border-amber-600 text-amber-700"
+                              : "border-orange-600 text-orange-700"
+                        }`}
                       title={STATUS_LABEL[e.status] ?? humanizeEnum(e.status)}
                     >
                       {STATUS_LABEL[e.status] ?? humanizeEnum(e.status)}
@@ -329,16 +324,9 @@ export default function EmployeeTable({
         </div>
       ) : null}
 
-      {/* Hidden click target for external buttons if needed */}
-      <button id="create-employee-open" type="button" className="hidden" onClick={() => {}} />
 
-      <CreateEmployeeDialog
-        open={openCreate}
-        onOpenChange={setOpenCreate}
-        onCreated={() => refresh()}
-        departments={departments}
-        designations={designations}
-      />
+
+
     </div>
   );
 }

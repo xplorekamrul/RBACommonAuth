@@ -46,6 +46,7 @@ const roleNav: Record<Role, Item[]> = {
   ADMIN: [
     { label: "Admin Panel", href: "/admin", icon: LayoutDashboard },
     { label: "Employees", href: "/admin/employees", icon: Users },
+    { label: "Core", href: "/admin/hr/core", icon: LayoutDashboard },
     // { label: "Settings", href: "/settings", icon: Settings },
   ],
 };

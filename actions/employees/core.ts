@@ -73,20 +73,46 @@ export const listEmployees = authActionClient
 export const createEmployee = adminActionClient
   .schema(employeeCreateSchema)
   .action(async ({ parsedInput }) => {
+    // === duplicate Employee ID guard (from your old action) ===
+    const exists = await prisma.employee.findUnique({
+      where: { empId: parsedInput.empId },
+      select: { id: true },
+    });
+    if (exists) {
+      return { ok: false as const, message: "Employee ID already exists." };
+    }
+
     const employee = await prisma.employee.create({
       data: {
         name: parsedInput.name,
         empId: parsedInput.empId,
-        joiningDate: toDateOrNull(parsedInput.joiningDate), 
+        joiningDate: toDateOrNull(parsedInput.joiningDate),
         contractType: parsedInput.contractType as any,
         departmentId: parsedInput.departmentId ?? null,
         designationId: parsedInput.designationId ?? null,
       },
       select: { id: true },
     });
+
     return { ok: true as const, id: employee.id };
   });
 
+export const getHrDropdowns = authActionClient
+  .schema(z.void()) // or z.undefined()
+  .action(async () => {
+    const [departments, designations] = await Promise.all([
+      prisma.department.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+      prisma.designation.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+    ]);
+
+    return { ok: true as const, departments, designations };
+  });
 export const updateEmployee = adminActionClient
   .schema(employeeUpdateSchema)
   .action(async ({ parsedInput }) => {
@@ -115,7 +141,7 @@ export const updateEmployeeStatus = adminActionClient
   });
 
 export const getEmployeeDetail = authActionClient
-  .schema(z.object({ id: z.string() })) 
+  .schema(z.object({ id: z.string() }))
   .action(async ({ parsedInput }) => {
     const { id } = parsedInput;
 

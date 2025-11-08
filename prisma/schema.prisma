@@ -87,10 +87,12 @@ enum BloodGroup {
 }
 
 enum DocumentFormat {
-  IMAGE
-  PDF
-  DOC
-  OTHER
+  jpg
+  jpeg
+  png
+  gif
+  webp
+  pdf
 }
 
 enum MaritalStatus {
@@ -253,20 +255,30 @@ model Education {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt      @map("updated_at")
 }
+model DocumentName {
+  id         String     @id @default(cuid())
+  name       String
+  documents  Document[]
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt      @map("updated_at")
+
+  @@map("document_names")
+}
 
 model Document {
-  id          String         @id @default(cuid())
+  id              String        @id @default(cuid())
+  documentNameId  String        @map("document_name_id")
+  documentName    DocumentName  @relation(fields: [documentNameId], references: [id], onDelete: Cascade)
 
-  name        String
-  src         String?
-  data        Json?
-  format      DocumentFormat
+  src             String?
+  data            Json?
+  format          DocumentFormat
+  employeeId      String        @map("employee_id")
+  employee        Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt      @map("updated_at")
 
-  employeeId  String         @map("employee_id") 
-  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt      @map("updated_at")
+  @@map("documents")
 }
 
 model JobHistory {

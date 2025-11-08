@@ -10,10 +10,24 @@ import FamilySection from "@/components/hr/forms/FamilySection";
 import DocumentsSection from "@/components/hr/forms/DocumentsSection";
 import JobHistoriesSection from "@/components/hr/forms/JobHistoriesSection";
 
+type Opt = { id: string; name: string };
+
 export default function ManageEmployeeClient({ initial }: { initial: any }) {
   if (!initial) return <p className="text-destructive">Employee not found</p>;
 
-  const e = initial; 
+  const e = initial;
+
+  const joiningDate =
+    e.joiningDate ? new Date(e.joiningDate).toISOString().slice(0, 10) : "";
+
+
+  const departments: Opt[] =
+    initial.departments ??
+    (e.department ? [{ id: e.department.id, name: e.department.name }] : []);
+
+  const designations: Opt[] =
+    initial.designations ??
+    (e.designation ? [{ id: e.designation.id, name: e.designation.name }] : []);
 
   return (
     <div className="space-y-6">
@@ -25,13 +39,13 @@ export default function ManageEmployeeClient({ initial }: { initial: any }) {
           id: e.id,
           name: e.name,
           empId: e.empId,
-          joiningDate: e.joiningDate
-            ? new Date(e.joiningDate).toISOString().slice(0, 16)
-            : "",
+          joiningDate,
           contractType: e.contractType,
-          departmentId: e.departmentId || "",
-          designationId: e.designationId || "",
+          departmentId: e.departmentId ?? e.department?.id ?? undefined,
+          designationId: e.designationId ?? e.designation?.id ?? undefined,
         }}
+        departments={departments}
+        designations={designations}
       />
 
       {/* One-to-one tables */}

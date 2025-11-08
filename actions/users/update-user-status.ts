@@ -7,8 +7,28 @@ import { Prisma, $Enums } from "@/generated/prisma/client";
 
 export const updateUserStatus = superAdminActionClient
   .schema(updateUserStatusSchema)
-  .action(async ({ parsedInput }) => {
-    const { id, status } = parsedInput; 
+  .action(async ({ parsedInput, ctx }) => {
+    const { id, status } = parsedInput;
+
+    //Fetch target first
+    const target = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, role: true, email: true, name: true },
+    });
+
+    if (!target) {
+      return { ok: false as const, message: "User not found." };
+    }
+
+    //   do not allow modifying Developer users
+    if (target.role === $Enums.Role.DEVELOPER) {
+      return {
+        ok: false as const,
+        message: "Developer users are protected and cannot be modified.",
+      };
+    }
+
+
 
     const data: Prisma.UserUpdateInput =
       status === "SUSPENDED"

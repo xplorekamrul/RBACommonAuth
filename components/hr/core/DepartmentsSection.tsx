@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import {
   createDepartment,
-  updateDepartment,
   deleteDepartment,
+  updateDepartment,
 } from "@/actions/hr/core";
 import { hasOkData } from "@/lib/safe-action/ok";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useState } from "react";
 
 type Row = { id: string; name: string };
 
@@ -72,7 +72,7 @@ export default function DepartmentsSection({ initial = [] as Row[] }) {
             Cancel
           </button>
           <button
-            className="rounded-md bg-pcolor text-white px-3 py-2"
+            className="rounded-md bg-primary text-white px-3 py-2"
             disabled={sc === "executing"}
           >
             Save
@@ -124,7 +124,7 @@ function RowItem({
             Cancel
           </button>
           <button
-            className="rounded-md bg-pcolor text-white px-3 py-2"
+            className="rounded-md bg-primary text-white px-3 py-2"
             onClick={() => {
               onSave(item.id, name.trim());
               setEditing(false);

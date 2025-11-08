@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { upsertPersonal } from "@/actions/employees/one-to-one";
-import { GENDER, BLOOD_GROUP, type Gender, type BloodGroup } from "@/lib/enums/enums";
+import { BLOOD_GROUP, GENDER, type BloodGroup, type Gender } from "@/lib/enums/enums";
 import { formatEnumLabel } from "@/lib/format";
+import { useAction } from "next-safe-action/hooks";
+import { useMemo, useState } from "react";
 
 export default function PersonalSection({
   employeeId,
@@ -52,12 +52,12 @@ export default function PersonalSection({
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold">Personal</h2>
         <button onClick={() => setEditing((v) => !v)} className="rounded-md border px-3 py-1.5">
-          {editing ? "Cancel" : initial ? "Edit" : "Add"}
+          {editing ? "Cancel" : initial ? "Add" : "Edit"}
         </button>
       </div>
 
       {editing ? (
-        <form onSubmit={save} className="grid sm:grid-cols-2 gap-3">
+        <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-4 gap-3">
           <div>
             <label className="text-sm">Father’s Name</label>
             <input className="mt-1 w-full rounded-md border px-3 py-2"
@@ -96,13 +96,13 @@ export default function PersonalSection({
             </select>
           </div>
 
-          <div className="sm:col-span-2 flex gap-2 justify-end">
+          <div className="sm:col-span-4 flex gap-2 justify-end">
             <button type="button" onClick={() => setEditing(false)} className="rounded-md border px-3 py-2">Cancel</button>
-            <button disabled={status === "executing"} className="rounded-md bg-pcolor text-white px-3 py-2">Save</button>
+            <button disabled={status === "executing"} className="rounded-md bg-primary text-white px-3 py-2">Save</button>
           </div>
         </form>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 text-sm">
           <div><span className="text-muted-foreground">Father:</span> {form.fathersName || "—"}</div>
           <div><span className="text-muted-foreground">Mother:</span> {form.mothersName || "—"}</div>
           <div><span className="text-muted-foreground">Birth Date:</span> {form.birthDate || "—"}</div>
@@ -116,6 +116,6 @@ export default function PersonalSection({
 
 function emptyToNull(s: string) { return s.trim() ? s : null; }
 function toLocalInput(d: string | Date) {
-  const iso = (typeof d === "string" ? new Date(d) : d).toISOString().slice(0,10);
+  const iso = (typeof d === "string" ? new Date(d) : d).toISOString().slice(0, 10);
   return iso;
 }

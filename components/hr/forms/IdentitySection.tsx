@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { upsertIdentity } from "@/actions/employees/one-to-one";
+import { useAction } from "next-safe-action/hooks";
+import { useMemo, useState } from "react";
 
 export default function IdentitySection({ employeeId, initial }: { employeeId: string; initial?: any | null }) {
   const [editing, setEditing] = useState(!initial);
@@ -27,12 +27,12 @@ export default function IdentitySection({ employeeId, initial }: { employeeId: s
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold">Identity</h2>
         <button onClick={() => setEditing((v) => !v)} className="rounded-md border px-3 py-1.5">
-          {editing ? "Cancel" : initial ? "Edit" : "Add"}
+          {editing ? "Cancel" : initial ? "Add" : "Edit"}
         </button>
       </div>
 
       {editing ? (
-        <form onSubmit={save} className="grid sm:grid-cols-2 gap-3">
+        <form onSubmit={save} className="grid grid-cols-1 lg:grid-cols-4 gap-3">
           <div>
             <label className="text-sm">NID</label>
             <input className="mt-1 w-full rounded-md border px-3 py-2"
@@ -54,13 +54,13 @@ export default function IdentitySection({ employeeId, initial }: { employeeId: s
               value={form.passportId} onChange={(e) => setForm((s) => ({ ...s, passportId: e.target.value }))} />
           </div>
 
-          <div className="sm:col-span-2 flex gap-2 justify-end">
+          <div className="sm:col-span-4 flex gap-2 justify-end">
             <button type="button" onClick={() => setEditing(false)} className="rounded-md border px-3 py-2">Cancel</button>
-            <button disabled={status === "executing"} className="rounded-md bg-pcolor text-white px-3 py-2">Save</button>
+            <button disabled={status === "executing"} className="rounded-md bg-primary text-white px-3 py-2">Save</button>
           </div>
         </form>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 text-sm">
           <div><span className="text-muted-foreground">NID:</span> {form.nid || "—"}</div>
           <div><span className="text-muted-foreground">NID ID:</span> {form.nidId || "—"}</div>
           <div><span className="text-muted-foreground">Passport:</span> {form.passport || "—"}</div>

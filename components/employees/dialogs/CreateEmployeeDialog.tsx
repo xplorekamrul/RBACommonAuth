@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { createEmployee } from "@/actions/employees/create-employee";
+import { type ContractType } from "@/lib/enums/enums";
 import type { EmployeeCreateValues } from "@/lib/validations/employees";
-import { CONTRACT_TYPE, type ContractType } from "@/lib/enums/enums";
+import { useAction } from "next-safe-action/hooks";
+import { useMemo, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -31,8 +31,8 @@ type FormState = {
 const CONTRACT_TYPE_OPTIONS: Array<{ value: ContractType; label: string; hint?: string }> = [
   { value: "FULL_TIME", label: "Full time", hint: "40h/week (typical)" },
   { value: "PART_TIME", label: "Part time", hint: "Under full-time hours" },
-  { value: "CONTRACT",  label: "Contract",  hint: "Fixed term / project" },
-  { value: "INTERN",    label: "Intern",    hint: "Trainee / internship" },
+  { value: "CONTRACT", label: "Contract", hint: "Fixed term / project" },
+  { value: "INTERN", label: "Intern", hint: "Trainee / internship" },
 ];
 
 // Sentinel for “None” in shadcn Select (must not be empty string)
@@ -244,7 +244,7 @@ export default function CreateEmployeeDialog({
           </button>
           <button
             disabled={status === "executing"}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-white bg-pcolor hover:opacity-95 transition disabled:opacity-70"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-white bg-primary hover:opacity-95 transition disabled:opacity-70"
           >
             {status === "executing" && <Loader2 className="h-4 w-4 animate-spin" />}
             Save

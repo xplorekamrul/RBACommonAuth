@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useAction } from "next-safe-action/hooks";
 import { updateUserInfo } from "@/actions/users/update-user-info";
+import { useAction } from "next-safe-action/hooks";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   open: boolean;
@@ -68,7 +68,7 @@ export default function EditInfoDialog({ open, onOpenChange, user, onSaved }: Pr
           <button type="button" onClick={() => onOpenChange(false)} className="px-3 py-2 rounded-md border">
             Cancel
           </button>
-          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-pcolor text-white">
+          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-primary text-white">
             Save
           </button>
         </div>

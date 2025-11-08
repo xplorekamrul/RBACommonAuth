@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { updateUserPassword } from "@/actions/users/update-user-password";
 import { Eye, EyeOff } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
-import { updateUserPassword } from "@/actions/users/update-user-password";
+import { useMemo, useState } from "react";
 
 type Props = {
   open: boolean;
@@ -76,7 +76,7 @@ export default function EditPasswordDialog({ open, onOpenChange, userId, onSaved
           <button type="button" onClick={() => onOpenChange(false)} className="px-3 py-2 rounded-md border">
             Cancel
           </button>
-          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-pcolor text-white">
+          <button disabled={status === "executing"} className="px-3 py-2 rounded-md bg-primary text-white">
             Save
           </button>
         </div>

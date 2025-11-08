@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useAction } from "next-safe-action/hooks";
-import { createEducation, updateEducation, deleteEducation } from "@/actions/employees/one-to-many";
+import { createEducation, deleteEducation, updateEducation } from "@/actions/employees/one-to-many";
 import { hasOkData } from "@/lib/safe-action/ok";
-import { Trash2, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useState } from "react";
 
 type Education = { id: string; degree: string | null; institution: string | null; subject: string | null };
 
@@ -90,7 +90,7 @@ export default function EducationsSection({
             <button type="button" className="rounded-md border px-3 py-2" onClick={() => setAdding(false)}>
               Cancel
             </button>
-            <button className="rounded-md bg-pcolor text-white px-3 py-2" disabled={sc === "executing"}>
+            <button className="rounded-md bg-primary text-white px-3 py-2" disabled={sc === "executing"}>
               Save
             </button>
           </div>
@@ -144,7 +144,7 @@ function Row({
               Cancel
             </button>
             <button
-              className="rounded-md bg-pcolor text-white px-3 py-2"
+              className="rounded-md bg-primary text-white px-3 py-2"
               onClick={() => (onSave(item.id, form), setEditing(false))}
             >
               Save
