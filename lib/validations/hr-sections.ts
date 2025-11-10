@@ -96,7 +96,7 @@ export const familyUpsertSchema = z.object({
     .nullable(), 
 });
 
-/** One-to-many: Education */
+/**  Education */
 export const educationCreateSchema = z.object({
   employeeId: z.string().cuid(),
   degree: z.string().trim().optional().nullable(),
@@ -116,7 +116,7 @@ export const educationUpdateSchema = educationCreateSchema.extend({
 });
 
 export const educationDeleteSchema = z.object({ id: z.string().cuid() });
-/** One-to-many: JobHistory */
+/** JobHistory */
 export const jobHistoryCreateSchema = z.object({
   employeeId: z.string().cuid(),
   companyName: z.string().min(1),
@@ -147,5 +147,37 @@ export const certificateUpsertSchema = z.object({
 });
 
 export const certificateDeleteSchema = z.object({
+  id: z.string().cuid(),
+});
+
+
+/** Leave upsert */
+export const leaveUpsertSchema = z.object({
+  employeeId: z.string().cuid(),
+  leaveId: z.string().cuid().optional().nullable(),
+  subject: z.string().trim().optional().nullable(),
+  body: z.string().trim().optional().nullable(),
+  status: z
+    .enum(["PENDING", "APPROVED", "REJECTED"])
+    .optional()
+    .nullable(),
+  applicationDoc: z
+    .object({
+      src: z.string(),
+      format: z.string(), 
+    })
+    .nullable()
+    .optional(),
+  statusDoc: z
+    .object({
+      src: z.string(),
+      format: z.string(),
+    })
+    .nullable()
+    .optional(),
+});
+
+/** Leave delete */
+export const leaveDeleteSchema = z.object({
   id: z.string().cuid(),
 });

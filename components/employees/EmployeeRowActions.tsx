@@ -1,3 +1,4 @@
+// components/hr/EmployeeRowActions.tsx
 "use client";
 
 import Link from "next/link";
@@ -5,7 +6,6 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { updateEmployeeStatus } from "@/actions/employees/update-employee-status";
 import { deleteEmployee } from "@/actions/employees/delete-employee";
-import EditEmployeeDialog from "./dialogs/EditEmployeeDialog";
 import {
   MoreHorizontal,
   UserCheck,
@@ -13,10 +13,11 @@ import {
   DoorOpen,
   UserMinus,
   Trash2,
-  Pencil,
   Eye,
+  CalendarDays, 
 } from "lucide-react";
 import type { ContractType, EmploymentStatus } from "@/lib/enums/enums";
+import LeavesSection from "@/components/hr/forms/LeavesSection"; 
 
 type Opt = { id: string; name: string };
 
@@ -37,6 +38,7 @@ export default function EmployeeRowActions({
   onChanged: () => void;
 }) {
   const [openMenu, setOpenMenu] = useState(false);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false); 
 
   const { executeAsync: doStatus } = useAction(updateEmployeeStatus);
   const { executeAsync: doDelete } = useAction(deleteEmployee);
@@ -55,15 +57,34 @@ export default function EmployeeRowActions({
   const statusItems = useMemo(
     (): { key: EmploymentStatus; label: string; icon: ReactNode; className: string }[] => {
       const all = [
-        { key: "ACTIVE" as const, label: "Activate", icon: <UserCheck className="h-4 w-4" />, className: "text-emerald-600" },
-        { key: "INACTIVE" as const, label: "Inactivate", icon: <PauseCircle className="h-4 w-4" />, className: "text-orange-600" },
-        { key: "ON_LEAVE" as const, label: "On leave", icon: <DoorOpen className="h-4 w-4" />, className: "text-amber-700" },
-        { key: "TERMINATED" as const, label: "Terminate", icon: <UserMinus className="h-4 w-4" />, className: "text-red-600" },
+        {
+          key: "ACTIVE" as const,
+          label: "Activate",
+          icon: <UserCheck className="h-4 w-4" />,
+          className: "text-emerald-600",
+        },
+        {
+          key: "INACTIVE" as const,
+          label: "Inactivate",
+          icon: <PauseCircle className="h-4 w-4" />,
+          className: "text-orange-600",
+        },
+        {
+          key: "ON_LEAVE" as const,
+          label: "On leave",
+          icon: <DoorOpen className="h-4 w-4" />,
+          className: "text-amber-700",
+        },
+        {
+          key: "TERMINATED" as const,
+          label: "Terminate",
+          icon: <UserMinus className="h-4 w-4" />,
+          className: "text-red-600",
+        },
       ];
-      // Exclude the current status from the dropdown
       return all.filter((s) => s.key !== employee.status);
     },
-    [employee.status]
+    [employee.status],
   );
 
   return (
@@ -88,13 +109,25 @@ export default function EmployeeRowActions({
             onClick={() => setOpenMenu(false)}
           >
             <Eye className="h-4 w-4" />
-             Employee Info
+            Employee Info
           </Link>
+
+          {/* Leave dialog trigger */}
+          <button
+            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-light"
+            onClick={() => {
+              setOpenMenu(false);
+              setShowLeaveDialog(true); 
+            }}
+          >
+            <CalendarDays className="h-4 w-4" />
+            Leave
+          </button>
 
           {/* Divider */}
           <div className="h-px bg-border" />
 
-          {/* Status actions (excluding current) */}
+          {/* Status actions  */}
           {statusItems.map((it) => (
             <button
               key={it.key}
@@ -107,16 +140,6 @@ export default function EmployeeRowActions({
               {it.icon} {it.label}
             </button>
           ))}
-
-          {/* Edit basic info */}
-          {/* <button
-            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-light text-emerald-700"
-            onClick={() => {
-              setOpenMenu(false);
-            }}
-          >
-            <Pencil className="h-4 w-4" /> Edit
-          </button> */}
 
           {/* Divider */}
           <div className="h-px bg-border" />
@@ -134,7 +157,26 @@ export default function EmployeeRowActions({
         </div>
       ) : null}
 
-     
+      {showLeaveDialog && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-[90%] rounded-xl bg-background shadow-lg border p-4 max-h-[90vh] overflow-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold">
+                Manage Leaves – {employee.name} ({employee.empId})
+              </h2>
+              <button
+                type="button"
+                className="h-8 w-8 grid place-items-center rounded-md border hover:bg-light"
+                onClick={() => setShowLeaveDialog(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <LeavesSection employeeId={employee.id} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

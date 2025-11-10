@@ -215,6 +215,13 @@ export const getEmployeeDetail = authActionClient
         
         jobHistories: true,
 
+        leaves: {
+          include: {
+            applicationDoc: true,
+            statusDoc: true,
+          },
+        },
+
       },
     });
 
