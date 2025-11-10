@@ -1,9 +1,10 @@
+// actions/employees/certificates.ts
 "use server";
 
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { adminActionClient } from "@/lib/safe-action/clients";
-import { certificateUpsertSchema } from "@/lib/validations/hr-sections";
+import { certificateUpsertSchema, certificateDeleteSchema } from "@/lib/validations/hr-sections";
 import { Prisma, $Enums } from "@/generated/prisma/client";
 
 export const upsertCertificate = adminActionClient
@@ -13,7 +14,8 @@ export const upsertCertificate = adminActionClient
       parsedInput;
 
     const safeName =
-      (name && name.trim().length > 0 ? name.trim() : "Certificate") ?? "Certificate";
+      (name && name.trim().length > 0 ? name.trim() : "Certificate") ??
+      "Certificate";
 
     const createData: Prisma.CertificateCreateInput = {
       employee: { connect: { id: employeeId } },
@@ -70,4 +72,16 @@ export const upsertCertificate = adminActionClient
     }
 
     return { ok: true as const, certificate: cert };
+  });
+
+export const deleteCertificate = adminActionClient
+  .schema(certificateDeleteSchema)
+  .action(async ({ parsedInput }) => {
+    const { id } = parsedInput;
+
+    await prisma.certificate.delete({
+      where: { id },
+    });
+
+    return { ok: true as const };
   });

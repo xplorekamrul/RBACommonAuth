@@ -57,8 +57,7 @@ export default function ManageEmployeeClient({ initial }: { initial: any }) {
 
       {/* One-to-many tables */}
       <EducationsSection employeeId={e.id} initial={e.educations || []} />
-      <CertificatesSection employeeId={e.id} initial={e.certificates?.[0] || null}/>
-      {/* <DocumentsSection employeeId={e.id} initial={e.documents || []} /> */}
+      <CertificatesSection employeeId={e.id} initial={e.certificates || []} />
       <JobHistoriesSection employeeId={e.id} initial={e.jobHistories || []} />
     </div>
   );

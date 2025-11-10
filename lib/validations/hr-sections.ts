@@ -93,7 +93,7 @@ export const familyUpsertSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
     .optional()
-    .nullable(), // remove if not in DB
+    .nullable(), 
 });
 
 /** One-to-many: Education */
@@ -102,39 +102,20 @@ export const educationCreateSchema = z.object({
   degree: z.string().trim().optional().nullable(),
   institution: z.string().trim().optional().nullable(),
   subject: z.string().trim().optional().nullable(),
+  degreeDoc: z
+    .object({
+      src: z.string(),
+      format: z.string(), 
+    })
+    .nullable()
+    .optional(),
 });
+
 export const educationUpdateSchema = educationCreateSchema.extend({
   id: z.string().cuid(),
 });
+
 export const educationDeleteSchema = z.object({ id: z.string().cuid() });
-
-// /** One-to-many: Document */
-// const documentNameSelector = z.object({
-//   documentNameId: z.string().cuid().optional(),
-//   documentNameNew: z.string().min(1).max(120).optional(),
-// }).refine(
-//   v => (!!v.documentNameId) !== (!!v.documentNameNew),
-//   "Provide either documentNameId (existing) OR documentNameNew (new), not both."
-// );
-
-// /** One-to-many: Document */
-// export const documentCreateSchema = z.object({
-//   employeeId: z.string().cuid(),
-//   src: z.string().min(1), // "employeeId/filename.ext"
-//   data: z.any().optional().nullable(),
-//   format: z.enum(DOCUMENT_FORMAT),
-// }).and(documentNameSelector);
-
-// export const documentUpdateSchema = z.object({
-//   id: z.string().cuid(),
-//   employeeId: z.string().cuid(),
-//   src: z.string().min(1),
-//   data: z.any().optional().nullable(),
-//   format: z.enum(DOCUMENT_FORMAT),
-// }).and(documentNameSelector);
-
-// export const documentDeleteSchema = z.object({ id: z.string().cuid() });
-
 /** One-to-many: JobHistory */
 export const jobHistoryCreateSchema = z.object({
   employeeId: z.string().cuid(),
@@ -149,21 +130,22 @@ export const jobHistoryUpdateSchema = jobHistoryCreateSchema.extend({
 export const jobHistoryDeleteSchema = z.object({ id: z.string().cuid() });
 
 
-
-
-
 // certificates 
 
 export const certificateUpsertSchema = z.object({
-  employeeId: z.string(),
-  certificateId: z.string().optional(), 
-  name: z.string().optional(),
-  details: z.string().optional().nullable(),
+  employeeId: z.string().cuid(),
+  certificateId: z.string().cuid().optional().nullable(),
+  name: z.string().trim().optional().nullable(),
+  details: z.string().trim().optional().nullable(),
   certificateDoc: z
     .object({
       src: z.string(),
-      format: z.string(),
+      format: z.string(), 
     })
     .nullable()
     .optional(),
+});
+
+export const certificateDeleteSchema = z.object({
+  id: z.string().cuid(),
 });

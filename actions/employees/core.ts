@@ -104,7 +104,6 @@ export const listEmployees = authActionClient
 export const createEmployee = adminActionClient
   .schema(employeeCreateSchema)
   .action(async ({ parsedInput }) => {
-    // empId is not @unique, so use findFirst instead of findUnique
     const exists = await prisma.employee.findFirst({
       where: { empId: parsedInput.empId },
       select: { id: true },
@@ -189,7 +188,6 @@ export const getEmployeeDetail = authActionClient
         department: true,
         designation: true,
 
-        // Identity + nested docs (already used by IdentitySection)
         identity: {
           include: {
             nidDoc: true,
@@ -202,14 +200,21 @@ export const getEmployeeDetail = authActionClient
         address: true,
         contact: true,
         family: true,
-        educations: true,
-        jobHistories: true,
+
+        educations: {
+          include: {
+            degreeDoc: true,
+          },
+        },
 
         certificates: {
           include: {
             certificateDoc: true,
           },
         },
+        
+        jobHistories: true,
+
       },
     });
 
