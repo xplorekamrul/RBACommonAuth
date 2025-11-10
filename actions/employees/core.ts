@@ -1,3 +1,4 @@
+// actions/employees/core.ts
 "use server";
 
 import "server-only";
@@ -19,22 +20,49 @@ function toDateOrNull(v: unknown): Date | null {
   return null;
 }
 
+/** List employees (table/search) */
 export const listEmployees = authActionClient
   .schema(employeeListSchema)
   .action(async ({ parsedInput }) => {
-    const { page, pageSize, q, statuses, contracts, departmentId, designationId } = parsedInput;
+    const {
+      page,
+      pageSize,
+      q,
+      statuses,
+      contracts,
+      departmentId,
+      designationId,
+    } = parsedInput;
 
     const and: Prisma.EmployeeWhereInput[] = [];
+
     if (q && q.trim()) {
       and.push({
         OR: [
-          { name: { contains: q.trim(), mode: Prisma.QueryMode.insensitive } },
-          { empId: { contains: q.trim(), mode: Prisma.QueryMode.insensitive } },
+          {
+            name: {
+              contains: q.trim(),
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
+          {
+            empId: {
+              contains: q.trim(),
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
         ],
       });
     }
-    if (statuses?.length) and.push({ status: { in: statuses as any } });
-    if (contracts?.length) and.push({ contractType: { in: contracts as any } });
+
+    if (statuses?.length) {
+      and.push({ status: { in: statuses as any } });
+    }
+
+    if (contracts?.length) {
+      and.push({ contractType: { in: contracts as any } });
+    }
+
     if (departmentId) and.push({ departmentId });
     if (designationId) and.push({ designationId });
 
@@ -63,21 +91,25 @@ export const listEmployees = authActionClient
 
     const safeItems = items.map((it) => ({
       ...it,
-      joiningDate: it.joiningDate ? it.joiningDate.toISOString().slice(0, 16) : null,
+      joiningDate: it.joiningDate
+        ? it.joiningDate.toISOString().slice(0, 16)
+        : null,
       createdAt: it.createdAt.toISOString(),
     }));
 
     return { ok: true as const, items: safeItems, total, page, pageSize };
   });
 
+/** Create employee (core info only) */
 export const createEmployee = adminActionClient
   .schema(employeeCreateSchema)
   .action(async ({ parsedInput }) => {
-    // === duplicate Employee ID guard (from your old action) ===
-    const exists = await prisma.employee.findUnique({
+    // empId is not @unique, so use findFirst instead of findUnique
+    const exists = await prisma.employee.findFirst({
       where: { empId: parsedInput.empId },
       select: { id: true },
     });
+
     if (exists) {
       return { ok: false as const, message: "Employee ID already exists." };
     }
@@ -90,6 +122,7 @@ export const createEmployee = adminActionClient
         contractType: parsedInput.contractType as any,
         departmentId: parsedInput.departmentId ?? null,
         designationId: parsedInput.designationId ?? null,
+        status: "ACTIVE",
       },
       select: { id: true },
     });
@@ -97,8 +130,9 @@ export const createEmployee = adminActionClient
     return { ok: true as const, id: employee.id };
   });
 
+/** Dropdowns for HR (departments, designations) */
 export const getHrDropdowns = authActionClient
-  .schema(z.void()) // or z.undefined()
+  .schema(z.void())
   .action(async () => {
     const [departments, designations] = await Promise.all([
       prisma.department.findMany({
@@ -113,6 +147,8 @@ export const getHrDropdowns = authActionClient
 
     return { ok: true as const, departments, designations };
   });
+
+/** Update core employee info */
 export const updateEmployee = adminActionClient
   .schema(employeeUpdateSchema)
   .action(async ({ parsedInput }) => {
@@ -130,6 +166,7 @@ export const updateEmployee = adminActionClient
     return { ok: true as const };
   });
 
+/** Update employee status (ACTIVE / INACTIVE / etc.) */
 export const updateEmployeeStatus = adminActionClient
   .schema(employeeStatusSchema)
   .action(async ({ parsedInput }) => {
@@ -140,6 +177,7 @@ export const updateEmployeeStatus = adminActionClient
     return { ok: true as const };
   });
 
+/** Get full employee detail for Manage page */
 export const getEmployeeDetail = authActionClient
   .schema(z.object({ id: z.string() }))
   .action(async ({ parsedInput }) => {
@@ -150,14 +188,28 @@ export const getEmployeeDetail = authActionClient
       include: {
         department: true,
         designation: true,
-        identity: true,
+
+        // Identity + nested docs (already used by IdentitySection)
+        identity: {
+          include: {
+            nidDoc: true,
+            passportDoc: true,
+            cvDoc: true,
+          },
+        },
+
         personal: true,
         address: true,
         contact: true,
         family: true,
         educations: true,
-        documents: true,
         jobHistories: true,
+
+        certificates: {
+          include: {
+            certificateDoc: true,
+          },
+        },
       },
     });
 

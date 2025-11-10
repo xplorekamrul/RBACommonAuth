@@ -1,3 +1,4 @@
+// lib/enums/enums.ts
 export const EMPLOYMENT_STATUS = ["ACTIVE", "INACTIVE", "ON_LEAVE", "TERMINATED"] as const;
 export type EmploymentStatus = typeof EMPLOYMENT_STATUS[number];
 

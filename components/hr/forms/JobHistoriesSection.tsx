@@ -5,12 +5,15 @@ import { hasOkData } from "@/lib/safe-action/ok";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import DatePickerDOB from "@/components/shared/date-picker";
+import { Label } from "../../ui/label";
 
 type JH = {
   id: string;
   companyName: string;
   designation: string;
-  startDate: string;   // YYYY-MM-DD
+  startDate: string;      // YYYY-MM-DD
   endDate: string | null; // YYYY-MM-DD or null
 };
 
@@ -28,6 +31,7 @@ export default function JobHistoriesSection({
     startDate: toDateInput(j.startDate),
     endDate: j.endDate ? toDateInput(j.endDate) : null,
   }));
+
   const [items, setItems] = useState<JH[]>(seed);
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState<JH>({
@@ -77,45 +81,85 @@ export default function JobHistoriesSection({
   }
 
   return (
-    <section className="rounded-lg border p-4">
+    <Card className="p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold">Job History</h2>
-        <button onClick={() => setAdding((v) => !v)} className="rounded-md border px-3 py-1.5 inline-flex items-center gap-2">
+        <button
+          onClick={() => setAdding((v) => !v)}
+          className="rounded-md border px-3 py-1.5 inline-flex items-center gap-2"
+        >
           <Plus className="h-4 w-4" /> Add
         </button>
       </div>
 
       {adding && (
         <form onSubmit={add} className="grid sm:grid-cols-4 gap-3 mb-4">
-          <input
-            className="rounded-md border px-3 py-2"
-            placeholder="Company Name"
-            value={newItem.companyName}
-            onChange={(e) => setNewItem((s) => ({ ...s, companyName: e.target.value }))}
-          />
-          <input
-            className="rounded-md border px-3 py-2"
-            placeholder="Designation"
-            value={newItem.designation}
-            onChange={(e) => setNewItem((s) => ({ ...s, designation: e.target.value }))}
-          />
-          <input
-            type="date"
-            className="rounded-md border px-3 py-2"
-            value={newItem.startDate}
-            onChange={(e) => setNewItem((s) => ({ ...s, startDate: e.target.value }))}
-          />
-          <input
-            type="date"
-            className="rounded-md border px-3 py-2"
-            value={newItem.endDate ?? ""}
-            onChange={(e) => setNewItem((s) => ({ ...s, endDate: e.target.value || null }))}
-          />
+          <div >
+            <Label className="mb-2">Company Name</Label>
+            <input
+
+              className="rounded-md border px-3 py-2  w-full"
+              placeholder="Company Name"
+              value={newItem.companyName}
+              onChange={(e) =>
+                setNewItem((s) => ({ ...s, companyName: e.target.value }))
+              }
+            />
+          </div>
+          <div >
+            <Label className="mb-2">Designation</Label>
+            <input
+              className="rounded-md border px-3 py-2  w-full "
+              placeholder="Designation"
+              value={newItem.designation}
+              onChange={(e) =>
+                setNewItem((s) => ({ ...s, designation: e.target.value }))
+              }
+            />
+          </div>
+
+          
+          {/* Start Date */}
+          <div className="sm:col-span-1">
+            <Label className="mb-2">Start Date</Label>
+
+            <DatePickerDOB
+              value={newItem.startDate || null}
+              onChange={(iso) =>
+                setNewItem((s) => ({ ...s, startDate: iso || "" }))
+              }
+
+              allowFutureDates={false}
+              defaultToToday={false}
+            />
+          </div>
+
+          {/* End Date  */}
+          <div className="sm:col-span-1">
+            <Label className="mb-2">End Date</Label>
+            <DatePickerDOB
+              value={newItem.endDate || null}
+              onChange={(iso) =>
+                setNewItem((s) => ({ ...s, endDate: iso || null }))
+              }
+
+              allowFutureDates={false}
+              defaultToToday={false}
+            />
+          </div>
+
           <div className="sm:col-span-4 flex justify-end gap-2">
-            <button type="button" className="rounded-md border px-3 py-2" onClick={() => setAdding(false)}>
+            <button
+              type="button"
+              className="rounded-md border px-3 py-2  "
+              onClick={() => setAdding(false)}
+            >
               Cancel
             </button>
-            <button className="rounded-md bg-primary text-white px-3 py-2" disabled={sc === "executing"}>
+            <button
+              className="rounded-md bg-primary text-white px-3 py-2  "
+              disabled={sc === "executing"}
+            >
               Save
             </button>
           </div>
@@ -126,10 +170,12 @@ export default function JobHistoriesSection({
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground">No job records.</p>
         ) : (
-          items.map((it) => <Row key={it.id} item={it} onSave={save} onDelete={remove} />)
+          items.map((it) => (
+            <Row key={it.id} item={it} onSave={save} onDelete={remove} />
+          ))
         )}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -143,41 +189,83 @@ function Row({
   onDelete: (id: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState(item);
+  const [form, setForm] = useState<JH>(item);
 
   return (
-    <div className="rounded-md border px-3 py-2">
+    <div className="rounded-md border px-3 py-2  w-full">
       {editing ? (
         <div className="grid sm:grid-cols-4 gap-3">
-          <input
-            className="rounded-md border px-3 py-2"
-            value={form.companyName}
-            onChange={(e) => setForm((s) => ({ ...s, companyName: e.target.value }))}
-          />
-          <input
-            className="rounded-md border px-3 py-2"
-            value={form.designation}
-            onChange={(e) => setForm((s) => ({ ...s, designation: e.target.value }))}
-          />
-          <input
-            type="date"
-            className="rounded-md border px-3 py-2"
-            value={form.startDate}
-            onChange={(e) => setForm((s) => ({ ...s, startDate: e.target.value }))}
-          />
-          <input
-            type="date"
-            className="rounded-md border px-3 py-2"
-            value={form.endDate ?? ""}
-            onChange={(e) => setForm((s) => ({ ...s, endDate: e.target.value || null }))}
-          />
+
+
+          <div >
+            <Label className="mb-2">Company Name</Label>
+            <input
+              className="rounded-md border px-3 py-2  w-full"
+              value={form.companyName}
+              onChange={(e) =>
+                setForm((s) => ({ ...s, companyName: e.target.value }))
+              }
+            />
+          </div>
+
+          <div >
+            <Label className="mb-2">Designation</Label>
+            <input
+              className="rounded-md border px-3 py-2  w-full"
+              value={form.designation}
+              onChange={(e) =>
+                setForm((s) => ({ ...s, designation: e.target.value }))
+              }
+            />
+          </div>
+
+
+
+          {/* Start Date picker */}
+          <div className="sm:col-span-1">
+            <Label className="mb-2">Start Date</Label>
+            <DatePickerDOB
+              value={form.startDate || null}
+              onChange={(iso) =>
+                setForm((s) => ({ ...s, startDate: iso || "" }))
+              }
+
+              allowFutureDates={false}
+              defaultToToday={false}
+            />
+          </div>
+
+          {/* End Date picker */}
+          <div className="sm:col-span-1">
+            <Label className="mb-2">End Date</Label>
+
+            <DatePickerDOB
+              value={form.endDate || null}
+              onChange={(iso) =>
+                setForm((s) => ({ ...s, endDate: iso || null }))
+              }
+
+              allowFutureDates={false}
+              defaultToToday={false}
+            />
+          </div>
+
           <div className="sm:col-span-4 flex gap-2 justify-end">
-            <button className="rounded-md border px-3 py-2" onClick={() => (setEditing(false), setForm(item))}>
+            <button
+              className="rounded-md border px-3 py-2 "
+              onClick={() => {
+                setEditing(false);
+                setForm(item);
+              }}
+            >
               Cancel
             </button>
             <button
-              className="rounded-md bg-primary text-white px-3 py-2"
-              onClick={() => (onSave(item.id, form), setEditing(false))}
+              className="rounded-md bg-primary text-white px-3 py-2 "
+              onClick={() => {
+                onSave(item.id, form);
+                setEditing(false);
+              }}
             >
               Save
             </button>
@@ -185,17 +273,35 @@ function Row({
         </div>
       ) : (
         <div className="flex items-center justify-between gap-2">
+
+        <div className="text-sm grid grid-cols-1 lg:grid-cols-4 gap-4  w-[90%]">
+            <div>
+            <span className="text-muted-foreground">Company:</span>{" "} {item.companyName}
+            </div>
+            <div>
+            <span className="text-muted-foreground">Designation:</span>{" "}{item.designation}
+            </div>
+            <div>
+            <span className="text-muted-foreground">Start:</span>{" "}{item.startDate}
+            </div>
+            <div>
+            <span className="text-muted-foreground">End:</span>{" "}{item.endDate || "—"}
+            </div>
+          </div>
+
           <div className="text-sm">
-            <span className="text-muted-foreground">Company:</span> {item.companyName} •{" "}
-            <span className="text-muted-foreground">Designation:</span> {item.designation} •{" "}
-            <span className="text-muted-foreground">Start:</span> {item.startDate} •{" "}
-            <span className="text-muted-foreground">End:</span> {item.endDate || "—"}
           </div>
           <div className="flex items-center gap-2">
-            <button className="rounded-md border px-2 py-1" onClick={() => setEditing(true)}>
+            <button
+              className="rounded-md border px-2 py-1"
+              onClick={() => setEditing(true)}
+            >
               <Pencil className="h-4 w-4" />
             </button>
-            <button className="rounded-md border px-2 py-1 text-destructive" onClick={() => onDelete(item.id)}>
+            <button
+              className="rounded-md border px-2 py-1 text-destructive"
+              onClick={() => onDelete(item.id)}
+            >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>

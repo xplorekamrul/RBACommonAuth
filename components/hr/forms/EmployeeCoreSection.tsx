@@ -6,6 +6,8 @@ import { formatEnumLabel } from "@/lib/format";
 import { Loader2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useEffect, useMemo, useState } from "react";
+import { Card } from "@/components/ui/card";
+
 
 import { Label } from "@/components/ui/label";
 import {
@@ -152,7 +154,7 @@ export default function EmployeeCoreSection(props: Props) {
   }, [departments.length, designations.length]);
 
   return (
-    <section className="rounded-lg border p-4">
+    <Card className=" p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold">Employee</h2>
 
@@ -212,14 +214,25 @@ export default function EmployeeCoreSection(props: Props) {
               className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={form.empId}
               onChange={(e) => setForm((s) => ({ ...s, empId: e.target.value }))}
-              placeholder="e.g. BIRL-0007"
+              placeholder="e.g. ABC-0007"
             />
             {fieldErrors.empId && <p className="mt-1 text-xs text-destructive">{fieldErrors.empId}</p>}
           </div>
 
+          <div className="mt-2">
 
+            <Label htmlFor="joining-date" className="-mt-2 mb-2">Joining Date</Label>
+            <DatePickerDOB
+              value={form.joiningDate || null}
+              onChange={(iso) => setForm((s) => ({ ...s, joiningDate: iso ?? "" }))}
+              minYear={2010}
+              defaultToToday
+            />
 
-
+            {fieldErrors.joiningDate && (
+              <p className="mt-1 text-xs text-destructive">{fieldErrors.joiningDate}</p>
+            )}
+          </div>
 
           {/* Department (shows when provided) */}
           <div>
@@ -274,52 +287,30 @@ export default function EmployeeCoreSection(props: Props) {
             )}
           </div>
 
-          <div className="">
-            {/* <Label>Joining Date</Label> */}
-            <div className="mt-2">
-              {/* <DatePickerDOB
-                value={form.joiningDate || null}
-                onChange={(iso) => setForm((s) => ({ ...s, joiningDate: iso ?? "" }))}
-                labelInitial="Select joining date"
-                labelAfter={(age) => "Selected date"}
-              /> */}
-              <DatePickerDOB
-                value={form.joiningDate || null}
-                onChange={(iso) => setForm((s) => ({ ...s, joiningDate: iso ?? "" }))}
-                labelInitial="Select joining date"
-                labelAfter={() => "Selected date"}
-                minYear={1990}
-                defaultToToday
-              />
 
-              {fieldErrors.joiningDate && (
-                <p className="mt-1 text-xs text-destructive">{fieldErrors.joiningDate}</p>
-              )}
-            </div>
 
-            {/* Actions */}
-            <div className="sm:col-span-3 mt-2 flex items-center justify-end gap-2">
-              {!isCreate && (
-                <button
-                  type="button"
-                  onClick={() => setEditing(false)}
-                  className="px-4 py-2 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition"
-                >
-                  Cancel
-                </button>
-              )}
+          {/* Actions */}
+          <div className="sm:col-span-3 mt-2 flex items-center justify-end gap-2">
+            {!isCreate && (
               <button
-                disabled={loading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-white bg-primary hover:opacity-95 transition disabled:opacity-70"
+                type="button"
+                onClick={() => setEditing(false)}
+                className="px-4 py-2 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground transition"
               >
-                {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-                Save
+                Cancel
               </button>
-            </div>
+            )}
+            <button
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-white bg-primary hover:opacity-95 transition disabled:opacity-70"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              Save
+            </button>
           </div>
         </form>
       ) : (
-        <div className="grid gap-3 text-sm sm:grid-cols-3">
+        <div className="grid gap-3 text-sm grid-cols-1 lg:grid-cols-4">
           <div><span className="text-muted-foreground">Name:</span> {form.name || "Not Provided"}</div>
           <div><span className="text-muted-foreground">Employee ID:</span> {form.empId || "Not Provided"}</div>
           <div>
@@ -345,6 +336,6 @@ export default function EmployeeCoreSection(props: Props) {
 
         </div>
       )}
-    </section>
+    </Card>
   );
 }

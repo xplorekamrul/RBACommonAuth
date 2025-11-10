@@ -1,3 +1,4 @@
+// lib/format.ts
 export function formatEnumLabel(v: string) {
   return v
     .split("_")

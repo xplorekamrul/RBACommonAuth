@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { adminActionClient } from "@/lib/safe-action/clients";
 import {
   educationCreateSchema, educationUpdateSchema, educationDeleteSchema,
-  documentCreateSchema, documentUpdateSchema, documentDeleteSchema,
   jobHistoryCreateSchema, jobHistoryUpdateSchema, jobHistoryDeleteSchema,
 } from "@/lib/validations/hr-sections";
 
@@ -32,28 +31,6 @@ export const deleteEducation = adminActionClient
     return { ok: true as const };
   });
 
-/** Document */
-export const createDocument = adminActionClient
-  .schema(documentCreateSchema)
-  .action(async ({ parsedInput }) => {
-    const d = await prisma.document.create({ data: parsedInput as any });
-    return { ok: true as const, id: d.id };
-  });
-
-export const updateDocument = adminActionClient
-  .schema(documentUpdateSchema)
-  .action(async ({ parsedInput }) => {
-    const { id, ...data } = parsedInput;
-    await prisma.document.update({ where: { id }, data: data as any });
-    return { ok: true as const };
-  });
-
-export const deleteDocument = adminActionClient
-  .schema(documentDeleteSchema)
-  .action(async ({ parsedInput }) => {
-    await prisma.document.delete({ where: { id: parsedInput.id } });
-    return { ok: true as const };
-  });
 
 /** JobHistory */
 export const createJobHistory = adminActionClient
@@ -77,3 +54,5 @@ export const deleteJobHistory = adminActionClient
     await prisma.jobHistory.delete({ where: { id: parsedInput.id } });
     return { ok: true as const };
   });
+
+

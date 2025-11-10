@@ -10,7 +10,7 @@ export const createEmployee = adminActionClient
   .action(async ({ parsedInput }) => {
     const { name, empId, joiningDate, contractType, departmentId, designationId } = parsedInput;
 
-    const exists = await prisma.employee.findUnique({ where: { empId } });
+    const exists = await prisma.employee.findUnique({ where: {id: empId } });
     if (exists) return { ok: false as const, message: "Employee ID already exists." };
 
     const data: Prisma.EmployeeCreateInput = {

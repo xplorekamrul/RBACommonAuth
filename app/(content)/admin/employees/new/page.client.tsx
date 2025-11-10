@@ -11,8 +11,8 @@ import PersonalSection from "@/components/hr/forms/PersonalSection";
 import AddressSection from "@/components/hr/forms/AddressSection";
 import ContactSection from "@/components/hr/forms/ContactSection";
 import FamilySection from "@/components/hr/forms/FamilySection";
-import DocumentsSection from "@/components/hr/forms/DocumentsSection";
 import JobHistoriesSection from "@/components/hr/forms/JobHistoriesSection";
+import CertificatesSection from "../../../../../components/hr/forms/CertificatesSection";
 
 type Opt = { id: string; name: string };
 
@@ -75,8 +75,10 @@ export default function NewEmployeeClient() {
           <FamilySection employeeId={employeeId} />
 
           <EducationsSection employeeId={employeeId} />
-          <DocumentsSection employeeId={employeeId} />
+          <CertificatesSection employeeId={employeeId}/>
+          {/* <DocumentsSection employeeId={employeeId} /> */}
           <JobHistoriesSection employeeId={employeeId} />
+          
         </>
       ) : (
         <p className="text-muted-foreground">

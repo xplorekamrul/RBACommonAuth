@@ -9,6 +9,7 @@ import { hasOkData } from "@/lib/safe-action/ok";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
+import { Card } from "@/components/ui/card";
 
 type Row = { id: string; name: string };
 
@@ -45,7 +46,7 @@ export default function DepartmentsSection({ initial = [] as Row[] }) {
   }
 
   return (
-    <section className="rounded-lg border p-4">
+    <Card className="rounded-lg border p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold">Departments</h2>
         <button
@@ -89,7 +90,7 @@ export default function DepartmentsSection({ initial = [] as Row[] }) {
           ))
         )}
       </div>
-    </section>
+    </Card>
   );
 }
 

@@ -1,3 +1,4 @@
+// lib/validations/hr-sections.ts
 import "server-only";
 import * as z from "zod";
 import {
@@ -32,20 +33,33 @@ export const employeeListSchema = z.object({
   designationId: z.string().cuid().optional(),
 });
 
-/** One-to-one forms (upsert) */
+
+const DocSchema = z
+  .object({
+    src: z.string(),
+    format: z.string().nullable(),
+  })
+  .nullable();
+
 export const identityUpsertSchema = z.object({
-  employeeId: z.string().cuid(),
-  nid: z.string().trim().optional().nullable(),
-  nidId: z.string().trim().optional().nullable(),
-  passport: z.string().trim().optional().nullable(),
-  passportId: z.string().trim().optional().nullable(),
+  employeeId: z.string().min(1),
+  nid: z.string().min(1, "NID is required"),
+  passport: z.string().optional().nullable(),
+
+  nidDoc: DocSchema,
+  passportDoc: DocSchema,
+  cvDoc: DocSchema,
 });
 
 export const personalUpsertSchema = z.object({
   employeeId: z.string().cuid(),
   fathersName: z.string().trim().optional().nullable(),
   mothersName: z.string().trim().optional().nullable(),
-  birthDate: z.union([z.string().date(), z.date()]).optional().nullable().transform(v => !v ? null : (typeof v === "string" ? new Date(v) : v)),
+  birthDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+    .optional()
+    .nullable(),
   gender: z.enum(GENDER).optional().nullable(),
   bloodGroup: z.enum(BLOOD_GROUP).optional().nullable(),
 });
@@ -94,18 +108,32 @@ export const educationUpdateSchema = educationCreateSchema.extend({
 });
 export const educationDeleteSchema = z.object({ id: z.string().cuid() });
 
-/** One-to-many: Document */
-export const documentCreateSchema = z.object({
-  employeeId: z.string().cuid(),
-  name: z.string().min(1),
-  src: z.string().url().optional().nullable(),
-  data: z.any().optional().nullable(),
-  format: z.enum(DOCUMENT_FORMAT),
-});
-export const documentUpdateSchema = documentCreateSchema.extend({
-  id: z.string().cuid(),
-});
-export const documentDeleteSchema = z.object({ id: z.string().cuid() });
+// /** One-to-many: Document */
+// const documentNameSelector = z.object({
+//   documentNameId: z.string().cuid().optional(),
+//   documentNameNew: z.string().min(1).max(120).optional(),
+// }).refine(
+//   v => (!!v.documentNameId) !== (!!v.documentNameNew),
+//   "Provide either documentNameId (existing) OR documentNameNew (new), not both."
+// );
+
+// /** One-to-many: Document */
+// export const documentCreateSchema = z.object({
+//   employeeId: z.string().cuid(),
+//   src: z.string().min(1), // "employeeId/filename.ext"
+//   data: z.any().optional().nullable(),
+//   format: z.enum(DOCUMENT_FORMAT),
+// }).and(documentNameSelector);
+
+// export const documentUpdateSchema = z.object({
+//   id: z.string().cuid(),
+//   employeeId: z.string().cuid(),
+//   src: z.string().min(1),
+//   data: z.any().optional().nullable(),
+//   format: z.enum(DOCUMENT_FORMAT),
+// }).and(documentNameSelector);
+
+// export const documentDeleteSchema = z.object({ id: z.string().cuid() });
 
 /** One-to-many: JobHistory */
 export const jobHistoryCreateSchema = z.object({
@@ -119,3 +147,23 @@ export const jobHistoryUpdateSchema = jobHistoryCreateSchema.extend({
   id: z.string().cuid(),
 });
 export const jobHistoryDeleteSchema = z.object({ id: z.string().cuid() });
+
+
+
+
+
+// certificates 
+
+export const certificateUpsertSchema = z.object({
+  employeeId: z.string(),
+  certificateId: z.string().optional(), 
+  name: z.string().optional(),
+  details: z.string().optional().nullable(),
+  certificateDoc: z
+    .object({
+      src: z.string(),
+      format: z.string(),
+    })
+    .nullable()
+    .optional(),
+});

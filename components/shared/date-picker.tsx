@@ -290,8 +290,8 @@ export default function DatePickerDOB({
       : labelInitial;
 
   return (
-    <div className="-mt-2">
-      <div className="text-sm font-medium text-black mb-1">{dynamicLabel}</div>
+    <div className="">
+      {/* <div className="text-sm font-medium text-black mb-1">{dynamicLabel}</div> */}
 
       <div className="flex items-start gap-3">
         <div className="flex items-center gap-3">

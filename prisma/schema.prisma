@@ -24,9 +24,9 @@ enum Role {
   ADMIN
 }
 
-
-
-/* ===== auth Models ===== */
+/**
+ * ===== auth Models =====
+ */
 model User {
   id            String        @id @default(cuid())
   name          String?
@@ -38,23 +38,22 @@ model User {
   suspendedAt   DateTime?     @map("suspended_at")
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
-
 }
 
 model PasswordResetOtp {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   email      String   @db.VarChar(255)
-  codeHash   String   @map("code_hash")
-  expiresAt  DateTime @map("expires_at")
-  attempts   Int      @default(0)
+  codeHash   String    @map("code_hash")
+  expiresAt  DateTime  @map("expires_at")
+  attempts   Int       @default(0)
   consumedAt DateTime? @map("consumed_at")
-  createdAt  DateTime @default(now()) @map("created_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@index([email, createdAt])
 }
 
+// ===================== HR ENUMS =====================
 
-/// ===================== HR ENUMS =====================
 enum EmploymentStatus {
   ACTIVE
   INACTIVE
@@ -95,203 +94,331 @@ enum DocumentFormat {
   pdf
 }
 
-enum MaritalStatus {
-  SINGLE
-  MARRIED
-  DIVORCED
-  WIDOWED
+// Used by leaves, showcases, showcase_answers.status
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
+enum DocumentName {
+  NID
+  PASSPORT
+  CV
+  CERTIFICATE
+  DEGREE
+  LEAVE_APPLICATION
+  LEAVE_STATUS
+  SHOWCASE_LETTER
+  SHOWCASE_STATUS
+  SHOWCASE_ANSWER_LETTER
+  SHOWCASE_ANSWER_STATUS
+}
+
+// ===================== Core HR Tables =====================
 
 model Employee {
-  id             String            @id @default(cuid())
-  name           String
-  empId          String            @unique @map("emp_id")
-  joiningDate    DateTime?         @map("joining_date")
-  contractType   ContractType      @map("contract_type")
-  status         EmploymentStatus  @default(ACTIVE)
+  id           String           @id @default(cuid())
+  name         String          
+  empId        String           @map("emp_id")
+  joiningDate  DateTime?        @map("joining_date")
+  contractType ContractType     @map("contract_type")
+  status       EmploymentStatus
 
-  departmentId   String?           @map("department_id")
-  designationId  String?           @map("designation_id")
+  departmentId  String? @map("department_id")
+  designationId String? @map("designation_id")
 
-  department     Department?       @relation(fields: [departmentId], references: [id])
-  designation    Designation?      @relation(fields: [designationId], references: [id])
+  department  Department?  @relation(fields: [departmentId], references: [id])
+  designation Designation? @relation(fields: [designationId], references: [id])
 
-  // One-to-one detail tables
-  identity       Identity?
-  personal       Personal?
-  address        Address?
-  contact        Contact?
-  family         Family?
+  // one-to-one
+  identity Identity?
+  personal Personal?
+  address  Address?
+  contact  Contact?
+  family   Family?
 
-  // One-to-many detail tables
-  educations     Education[]
-  documents      Document[]
-  jobHistories   JobHistory[]     
+  // one-to-many
+  educations   Education[]
+  jobHistories JobHistory[]
+  leaves       Leave[]
+  showcases    Showcase[]
+  certificates Certificate[]
 
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("employees")
 }
 
-
-/// ===================== HR CORE TABLES =====================
-
 model Department {
-  id        String      @id @default(cuid())
-  name      String
+  id   String @id @default(cuid())
+  name String
 
   employees Employee[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("departments")
 }
 
 model Designation {
-  id        String      @id @default(cuid())
-  name      String
+  id   String @id @default(cuid())
+  name String
 
   employees Employee[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("designations")
 }
 
-
-/// ===================== ONE-TO-ONE  TABLES =====================
+// ===================== One-to-one Detail Tables =====================
 
 model Identity {
-  id          String  @id @default(cuid())
-  employeeId  String  @unique @map("employee_id")
+  id            String  @id @default(cuid())
+  employeeId    String  @map("employee_id")
+  nid           String 
+  nidDocId      String?  @map("nid_doc_id")
+  passport      String?
+  passportDocId String? @map("passport_doc_id")
+  cvDocId       String? @map("cv_doc_id")
 
-  nid         String? 
-  nidId       String? @map("nid_id")
-  passport    String?
-  passportId  String? @map("passport_id")
+  employee Employee @relation(fields: [employeeId], references: [id])
 
-  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  nidDoc      Document? @relation("NidDoc", fields: [nidDocId], references: [id])
+  passportDoc Document? @relation("PassportDoc", fields: [passportDocId], references: [id])
+  cvDoc       Document? @relation("CvDoc", fields: [cvDocId], references: [id])
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([employeeId])
+  @@map("identities")
 }
 
 model Personal {
-  id           String   @id @default(cuid())
-  employeeId   String   @unique @map("employee_id")
+  id         String @id @default(cuid())
+  employeeId String @map("employee_id")
 
-  fathersName  String?  @map("fathers_name")
-  mothersName  String?  @map("mothers_name")
-  birthDate    DateTime? @map("birth_date")
-  gender       Gender?
-  bloodGroup   BloodGroup? @map("blood_group")
+  fathersName String?     @map("fathers_name")
+  mothersName String?     @map("mothers_name")
+  birthDate   DateTime?   @map("birth_date")
+  gender      Gender?
+  bloodGroup  BloodGroup? @map("blood_group")
 
-  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id])
 
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([employeeId])
+  @@map("personals")
 }
 
 model Address {
-  id                  String  @id @default(cuid())
-  employeeId          String  @unique @map("employee_id")
+  id         String @id @default(cuid())
+  employeeId String @map("employee_id")
 
-  presentDistrict     String? @map("present_district")
-  presentUpazila      String? @map("present_upozilla")
-  presentAddress      String? @map("present_address")
+  presentDistrict String? @map("present_district")
+  presentUpazila  String? @map("present_upozilla")
+  presentAddress  String? @map("present_address")
 
-  permanentDistrict   String? @map("permanent_district")
-  permanentUpazila    String? @map("permanentenum_upozilla")
-  permanentAddress    String? @map("permanent_address")
+  permanentDistrict String? @map("permanent_district")
+  permanentUpazila  String? @map("permanent_upozilla")
+  permanentAddress  String? @map("permanent_address")
 
-  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id])
 
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([employeeId])
+  @@map("addresses")
 }
 
 model Contact {
-  id          String  @id @default(cuid())
-  employeeId  String  @unique @map("employee_id")
+  id         String @id @default(cuid())
+  employeeId String @map("employee_id")
 
-  mobile      String?
-  email       String?
-
-  emergencyContactName   String? @map("emergency_contact")
-  emergencyContactNumber String? @map("emergency_contact_number")
+  mobile                   String?
+  email                    String?
+  emergencyContactName     String? @map("emergency_contact")
+  emergencyContactNumber   String? @map("emergency_contact_number")
   emergencyContactRelation String? @map("emergency_contact_relation")
 
-  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id])
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([employeeId])
+  @@map("contacts")
 }
 
 model Family {
-  id            String        @id @default(cuid())
-  employeeId    String        @unique @map("employee_id")
+  id         String @id @default(cuid())
+  employeeId String @map("employee_id")
 
-  maritalStatus MaritalStatus @map("marital_status")
-  spouseName    String?       @map("spouse_name")
-  spouseOccupation String?    @map("spouse_occupation")
-  noChildren    Int?          @map("no_children")
+  maritalStatus    String? @map("marital_status")
+  spouseName       String? @map("spouse_name")
+  spouseOccupation String? @map("spouse_occupation")
+  noChildren       Int?    @map("no_children")
 
-  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id])
 
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([employeeId])
+  @@map("families")
 }
 
-/// ===================== ONE-TO-MANY  TABLES =====================
+// ===================== One-to-many Detail Tables =====================
 
 model Education {
-  id          String   @id @default(cuid())
-  employeeId  String   @map("employee_id")
-
+  id          String  @id @default(cuid())
+  employeeId  String  @map("employee_id")
   degree      String?
   institution String?
   subject     String?
+  degreeDocId String? @map("degree_doc_id")
 
-  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  degreeDoc Document? @relation("DegreeDoc", fields: [degreeDocId], references: [id])
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt      @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("educations")
 }
-model DocumentName {
-  id         String     @id @default(cuid())
-  name       String
-  documents  Document[]
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt      @map("updated_at")
 
-  @@map("document_names")
+model JobHistory {
+  id          String    @id @default(cuid())
+  employeeId  String    @map("employee_id")
+  companyName String    @map("company_name")
+  designation String   
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime? @map("end_date")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("job_histories")
 }
+
+// ===================== Documents & Related =====================
 
 model Document {
-  id              String        @id @default(cuid())
-  documentNameId  String        @map("document_name_id")
-  documentName    DocumentName  @relation(fields: [documentNameId], references: [id], onDelete: Cascade)
+  id     String         @id @default(cuid())
+  name   DocumentName
+  src    String?       
+  data   Json?
+  format DocumentFormat
 
-  src             String?
-  data            Json?
-  format          DocumentFormat
-  employeeId      String        @map("employee_id")
-  employee        Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt      @map("updated_at")
+  // back-relations from all foreign keys pointing to documents
+  identitiesAsNid      Identity[] @relation("NidDoc")
+  identitiesAsPassport Identity[] @relation("PassportDoc")
+  identitiesAsCv       Identity[] @relation("CvDoc")
+
+  educationsAsDegree Education[]   @relation("DegreeDoc")
+  certificates       Certificate[] @relation("CertificateDoc")
+
+  leavesAsApplication Leave[] @relation("LeaveApplicationDoc")
+  leavesAsStatus      Leave[] @relation("LeaveStatusDoc")
+
+  showcasesAsLetter Showcase[] @relation("ShowcaseLetterDoc")
+  showcasesAsStatus Showcase[] @relation("ShowcaseStatusDoc")
+
+  showcaseAnswersLetter ShowcaseAnswer[] @relation("ShowcaseAnswerLetterDoc")
+  showcaseAnswersStatus ShowcaseAnswer[] @relation("ShowcaseAnswerStatusDoc")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("documents")
 }
 
-model JobHistory {
-  id           String   @id @default(cuid())
+model Certificate {
+  id               String  @id @default(cuid())
+  employeeId       String  @map("employee_id")
+  name             String 
+  details          String?
+  certificateDocId String? @map("certificate_doc_id")
 
-  companyName  String   @map("company_name")
-  designation  String
-  startDate    DateTime @map("start_date")
-  endDate      DateTime? @map("end_date")
+  employee       Employee  @relation(fields: [employeeId], references: [id])
+  certificateDoc Document? @relation("CertificateDoc", fields: [certificateDocId], references: [id])
 
-  employeeId   String   @map("employee_id")
-  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt      @map("updated_at")
+  @@map("certificates")
+}
+
+// ===================== Leaves & Showcases =====================
+
+model Leave {
+  id               String        @id @default(cuid())
+  employeeId       String        @map("employee_id")
+  subject          String?      
+  body             String?      
+  applicationDocId String?       @map("application_doc_id")
+  statusDocId      String?       @map("status_doc_id")
+  status           RequestStatus
+  statusAt         DateTime?     @map("status_at")
+
+  employee       Employee  @relation(fields: [employeeId], references: [id])
+  applicationDoc Document? @relation("LeaveApplicationDoc", fields: [applicationDocId], references: [id])
+  statusDoc      Document? @relation("LeaveStatusDoc", fields: [statusDocId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("leaves")
+}
+
+model Showcase {
+  id          String        @id @default(cuid())
+  employeeId  String        @map("employee_id")
+  subject     String?      
+  body        String?      
+  letterDocId String?       @map("letter_doc_id")
+  statusDocId String?       @map("status_doc_id")
+  status      RequestStatus
+  statusAt    DateTime?     @map("status_at")
+
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  letterDoc Document? @relation("ShowcaseLetterDoc", fields: [letterDocId], references: [id])
+  statusDoc Document? @relation("ShowcaseStatusDoc", fields: [statusDocId], references: [id])
+
+  answers ShowcaseAnswer[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("showcases")
+}
+
+model ShowcaseAnswer {
+  id          String        @id @default(cuid())
+  showcaseId  String        @map("showcase_id")
+  subject     String?      
+  body        String?      
+  letterDocId String?       @map("letter_doc_id")
+  statusDocId String?       @map("status_doc_id")
+  status      RequestStatus
+  statusAt    DateTime?     @map("status_at")
+
+  showcase  Showcase  @relation(fields: [showcaseId], references: [id])
+  letterDoc Document? @relation("ShowcaseAnswerLetterDoc", fields: [letterDocId], references: [id])
+  statusDoc Document? @relation("ShowcaseAnswerStatusDoc", fields: [statusDocId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("showcase_answers")
 }

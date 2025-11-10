@@ -7,8 +7,8 @@ import PersonalSection from "@/components/hr/forms/PersonalSection";
 import AddressSection from "@/components/hr/forms/AddressSection";
 import ContactSection from "@/components/hr/forms/ContactSection";
 import FamilySection from "@/components/hr/forms/FamilySection";
-import DocumentsSection from "@/components/hr/forms/DocumentsSection";
 import JobHistoriesSection from "@/components/hr/forms/JobHistoriesSection";
+import CertificatesSection from "@/components/hr/forms/CertificatesSection";
 
 type Opt = { id: string; name: string };
 
@@ -57,7 +57,8 @@ export default function ManageEmployeeClient({ initial }: { initial: any }) {
 
       {/* One-to-many tables */}
       <EducationsSection employeeId={e.id} initial={e.educations || []} />
-      <DocumentsSection employeeId={e.id} initial={e.documents || []} />
+      <CertificatesSection employeeId={e.id} initial={e.certificates?.[0] || null}/>
+      {/* <DocumentsSection employeeId={e.id} initial={e.documents || []} /> */}
       <JobHistoriesSection employeeId={e.id} initial={e.jobHistories || []} />
     </div>
   );

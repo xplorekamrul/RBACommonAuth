@@ -1,12 +1,22 @@
 "use client";
 
-import { createEducation, deleteEducation, updateEducation } from "@/actions/employees/one-to-many";
+import {
+  createEducation,
+  deleteEducation,
+  updateEducation,
+} from "@/actions/employees/one-to-many";
 import { hasOkData } from "@/lib/safe-action/ok";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
+import { Card } from "../../ui/card";
 
-type Education = { id: string; degree: string | null; institution: string | null; subject: string | null };
+type Education = {
+  id: string;
+  degree: string | null;
+  institution: string | null;
+  subject: string | null;
+};
 
 export default function EducationsSection({
   employeeId,
@@ -17,7 +27,11 @@ export default function EducationsSection({
 }) {
   const [items, setItems] = useState<Education[]>(initial);
   const [adding, setAdding] = useState(false);
-  const [newItem, setNewItem] = useState({ degree: "", institution: "", subject: "" });
+  const [newItem, setNewItem] = useState({
+    degree: "",
+    institution: "",
+    subject: "",
+  });
 
   const { executeAsync: doCreate, status: sc } = useAction(createEducation);
   const { executeAsync: doUpdate } = useAction(updateEducation);
@@ -32,7 +46,15 @@ export default function EducationsSection({
       subject: nz(newItem.subject),
     });
     if (hasOkData<{ id: string }>(res)) {
-      setItems((arr) => [{ id: res.data.id, degree: nz(newItem.degree), institution: nz(newItem.institution), subject: nz(newItem.subject) }, ...arr]);
+      setItems((arr) => [
+        {
+          id: res.data.id,
+          degree: nz(newItem.degree),
+          institution: nz(newItem.institution),
+          subject: nz(newItem.subject),
+        },
+        ...arr,
+      ]);
       setNewItem({ degree: "", institution: "", subject: "" });
       setAdding(false);
     }
@@ -58,40 +80,66 @@ export default function EducationsSection({
   }
 
   return (
-    <section className="rounded-lg border p-4">
-      <div className="flex items-center justify-between mb-3">
+    <Card className="p-4">
+      <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold">Education</h2>
-        <button onClick={() => setAdding((v) => !v)} className="rounded-md border px-3 py-1.5 inline-flex items-center gap-2">
-          <Plus className="h-4 w-4" /> Add
+        <button
+          onClick={() => setAdding((v) => !v)}
+          className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm"
+          type="button"
+          disabled={sc === "executing"}
+        >
+          <Plus className="h-4 w-4" />
+          Add
         </button>
       </div>
 
       {adding ? (
-        <form onSubmit={add} className="grid sm:grid-cols-3 gap-3 mb-4">
+        <form
+          onSubmit={add}
+          className="mb-4 grid gap-3 sm:grid-cols-3"
+        >
           <input
             className="rounded-md border px-3 py-2"
             placeholder="Degree"
             value={newItem.degree}
-            onChange={(e) => setNewItem((s) => ({ ...s, degree: e.target.value }))}
+            onChange={(e) =>
+              setNewItem((s) => ({ ...s, degree: e.target.value }))
+            }
           />
           <input
             className="rounded-md border px-3 py-2"
             placeholder="Institution"
             value={newItem.institution}
-            onChange={(e) => setNewItem((s) => ({ ...s, institution: e.target.value }))}
+            onChange={(e) =>
+              setNewItem((s) => ({ ...s, institution: e.target.value }))
+            }
           />
           <input
             className="rounded-md border px-3 py-2"
             placeholder="Subject"
             value={newItem.subject}
-            onChange={(e) => setNewItem((s) => ({ ...s, subject: e.target.value }))}
+            onChange={(e) =>
+              setNewItem((s) => ({ ...s, subject: e.target.value }))
+            }
           />
-          <div className="sm:col-span-3 flex gap-2 justify-end">
-            <button type="button" className="rounded-md border px-3 py-2" onClick={() => setAdding(false)}>
+          <div className="sm:col-span-3 flex justify-end gap-2">
+            <button
+              type="button"
+              className="rounded-md border px-3 py-2"
+              onClick={() => setAdding(false)}
+              disabled={sc === "executing"}
+            >
               Cancel
             </button>
-            <button className="rounded-md bg-primary text-white px-3 py-2" disabled={sc === "executing"}>
-              Save
+            <button
+              className="flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-white"
+              disabled={sc === "executing"}
+            >
+              {sc === "executing" && (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
+              {sc === "executing" ? "Saving…" : "Save"}
             </button>
           </div>
         </form>
@@ -99,12 +147,21 @@ export default function EducationsSection({
 
       <div className="space-y-2">
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No education records.</p>
+          <p className="text-sm text-muted-foreground">
+            No education records.
+          </p>
         ) : (
-          items.map((it) => <Row key={it.id} item={it} onSave={save} onDelete={remove} />)
+          items.map((it) => (
+            <Row
+              key={it.id}
+              item={it}
+              onSave={save}
+              onDelete={remove}
+            />
+          ))
         )}
       </div>
-    </section>
+    </Card>
   );
 }
 
@@ -114,56 +171,117 @@ function Row({
   onDelete,
 }: {
   item: Education;
-  onSave: (id: string, it: Education) => void;
-  onDelete: (id: string) => void;
+  onSave: (id: string, it: Education) => Promise<void> | void;
+  onDelete: (id: string) => Promise<void> | void;
 }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(item);
+  const [saving, setSaving] = useState(false);
+  const [removing, setRemoving] = useState(false);
+
+  async function handleSave() {
+    try {
+      setSaving(true);
+      await onSave(item.id, form);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      setRemoving(true);
+      await onDelete(item.id);
+    } finally {
+      setRemoving(false);
+    }
+  }
 
   return (
     <div className="rounded-md border px-3 py-2">
       {editing ? (
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           <input
             className="rounded-md border px-3 py-2"
             value={form.degree ?? ""}
-            onChange={(e) => setForm((s) => ({ ...s, degree: e.target.value }))}
+            onChange={(e) =>
+              setForm((s) => ({ ...s, degree: e.target.value }))
+            }
           />
           <input
             className="rounded-md border px-3 py-2"
             value={form.institution ?? ""}
-            onChange={(e) => setForm((s) => ({ ...s, institution: e.target.value }))}
+            onChange={(e) =>
+              setForm((s) => ({ ...s, institution: e.target.value }))
+            }
           />
           <input
             className="rounded-md border px-3 py-2"
             value={form.subject ?? ""}
-            onChange={(e) => setForm((s) => ({ ...s, subject: e.target.value }))}
+            onChange={(e) =>
+              setForm((s) => ({ ...s, subject: e.target.value }))
+            }
           />
-          <div className="sm:col-span-3 flex gap-2 justify-end">
-            <button className="rounded-md border px-3 py-2" onClick={() => (setEditing(false), setForm(item))}>
+          <div className="sm:col-span-3 flex justify-end gap-2">
+            <button
+              className="rounded-md border px-3 py-2"
+              onClick={() => {
+                setEditing(false);
+                setForm(item);
+              }}
+              type="button"
+              disabled={saving}
+            >
               Cancel
             </button>
             <button
-              className="rounded-md bg-primary text-white px-3 py-2"
-              onClick={() => (onSave(item.id, form), setEditing(false))}
+              className="flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-white"
+              onClick={handleSave}
+              type="button"
+              disabled={saving}
             >
-              Save
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {saving ? "Saving…" : "Save"}
             </button>
           </div>
         </div>
       ) : (
         <div className="flex items-center justify-between gap-2">
-          <div className="text-sm">
-            <span className="text-muted-foreground">Degree:</span> {item.degree || "—"} •{" "}
-            <span className="text-muted-foreground">Institution:</span> {item.institution || "—"} •{" "}
-            <span className="text-muted-foreground">Subject:</span> {item.subject || "—"}
+          <div className="grid w-[90%] grid-cols-1 gap-4 text-sm lg:grid-cols-3">
+            <div>
+              <span className="text-muted-foreground">Degree:</span>{" "}
+              {item.degree || "—"}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Institution:</span>{" "}
+              {item.institution || "—"}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Subject:</span>{" "}
+              {item.subject || "—"}
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="rounded-md border px-2 py-1" onClick={() => setEditing(true)}>
+            <button
+              className="rounded-md border px-2 py-1"
+              onClick={() => setEditing(true)}
+              type="button"
+              disabled={removing}
+            >
               <Pencil className="h-4 w-4" />
             </button>
-            <button className="rounded-md border px-2 py-1 text-destructive" onClick={() => onDelete(item.id)}>
-              <Trash2 className="h-4 w-4" />
+            <button
+              className="rounded-md border px-2 py-1 text-destructive"
+              onClick={handleDelete}
+              type="button"
+              disabled={removing}
+            >
+              {removing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
